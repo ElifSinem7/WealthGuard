@@ -1,0 +1,140 @@
+/* Genel stil ve arka plan */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0a6f3f, #1a9d63, #32c44f); /* Dolar yeşili tonlarında geçiş */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: 400% 400%; /* Hareketli arka plan */
+    animation: gradientAnimation 10s ease infinite;
+  }
+  
+  /* Arka plan animasyonu */
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  /* Navbar ve logo */
+  .navbar {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    z-index: 10;
+    background: #0a6f3f; /* Üst kısmı koyu dolar yeşili */
+    border-bottom: 4px solid #32c44f; /* Altına ince yeşil çizgi */
+    padding-top: 20px;
+    padding-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Gölgelendirme ekledim */
+  }
+  
+  .logo h1 {
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+  }
+  
+  .auth-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    margin: 0 15px;
+    font-weight: bold;
+  }
+  
+  .auth-links a:hover {
+    color: #32c44f;
+    text-decoration: underline;
+  }
+  
+  /* Form kutusu */
+  .form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .form-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Başlık */
+  .form-box h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Form inputları */
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #32c44f;
+    border-radius: 12px;
+    outline: none;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-group input:focus {
+    border-color: #0a6f3f;
+    box-shadow: 0 0 8px rgba(10, 111, 63, 0.5);
+  }
+  
+  /* Buton */
+  .login-btn {
+    background-color: #32c44f;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-btn:hover {
+    background-color: #0a6f3f;
+    transform: scale(1.05);
+  }
+  
+  /* Şifre unutma linki */
+  .forgot-password {
+    margin-top: 15px;
+  }
+  
+  .forgot-password a {
+    color: #32c44f;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .forgot-password a:hover {
+    text-decoration: underline;
+  }
+  

@@ -1,0 +1,136 @@
+/* Genel stil ve arka plan */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #5c9d6d, #76c18a); /* Dolar yeşili tonlarında animasyonlu geçiş */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: 400% 400%; /* Arka planda geçiş hareketi */
+    animation: gradientAnimation 8s ease infinite;
+  }
+  
+  /* Arka plan animasyonu */
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  /* Navbar ve logo */
+  .navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: rgba(0, 0, 0, 0.3); /* Hafif opak arka plan */
+    border-bottom: 1px solid #fff;
+  }
+  
+  .logo h1 {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+  }
+  
+  .auth-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    margin: 0 20px;
+    font-weight: 500;
+  }
+  
+  .auth-links a:hover {
+    color: #f2f2f2;
+    text-decoration: underline;
+  }
+  
+  /* Form kutusu */
+  .form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .form-box {
+    background: rgba(255, 255, 255, 0.95); /* Hafif beyaz opaklık */
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px); /* Arka planda bulanıklık efekti */
+    border: 1px solid #e5e5e5;
+  }
+  
+  /* Başlık */
+  .form-box h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  /* Form inputları */
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-group input:focus {
+    border-color: #76c18a;
+    box-shadow: 0 0 8px rgba(118, 193, 138, 0.5);
+  }
+  
+  /* Buton */
+  .signup-btn {
+    background-color: #76c18a;
+    color: white;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  
+  .signup-btn:hover {
+    background-color: #5c9d6d;
+    transform: scale(1.05);
+  }
+  
+  /* Hesap oluştur linki */
+  .signin-link {
+    margin-top: 15px;
+    color: #76c18a;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .signin-link:hover {
+    text-decoration: underline;
+  }
+  
