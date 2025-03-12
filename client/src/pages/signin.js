@@ -8,9 +8,9 @@ export default function SignIn() {
 
   return (
     <div className="h-screen w-screen bg-white flex flex-col font-worksans">
-      {/* Navbar */}
+      {/* headbar */}
       <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
-        {/* Logo */}
+        {/* logo */}
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover" />
 
@@ -19,7 +19,7 @@ export default function SignIn() {
 </Link>
         </div>
 
-        {/* Sağ Kısım */}
+        {/* right */}
         <div className="flex items-center space-x-6">
         <Link to="/signin" className="text-xl font-semibold text-gray-700 hover:text-gray-900">
             Sign In
@@ -37,7 +37,7 @@ export default function SignIn() {
       {/* signin */}
       <div className="flex items-center justify-center min-h-screen ">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px] border-4 border-gray-500">
-          {/* Başlık */}
+          {/* exp about sign */}
           <h2 className="text-xl font-semibold text-center">
             Sign in to <span className="font-bold">WealthGuard</span>
           </h2>
@@ -45,7 +45,7 @@ export default function SignIn() {
             Welcome back! Please sign in to continue.
           </p>
 
-          {/* Google ile giriş */}
+          {/* google part */}
           <div className="flex justify-center mt-4">
             <button className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg shadow-sm">
               <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
@@ -53,14 +53,14 @@ export default function SignIn() {
             </button>
           </div>
 
-          {/* Bölücü çizgi */}
+          {/* -or- */}
           <div className="flex items-center gap-2 my-4">
             <hr className="flex-grow border-gray-300" />
             <span className="text-gray-500 text-xs">or</span>
             <hr className="flex-grow border-gray-300" />
           </div>
 
-          {/* Email & Password */}
+          {/* email password */}
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">E-mail address</label>
@@ -87,17 +87,17 @@ export default function SignIn() {
             </div>
           </div>
 
-          {/* Continue Butonu */}
+          {/* continue */}
           <button className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
             Continue
           </button>
 
-          {/* Bölücü çizgi */}
+          {/* bottom line */}
           <div className="flex items-center gap-2 my-4">
             <hr className="flex-grow border-gray-600" />
           </div>
 
-          {/* Alt Kısım */}
+          {/* bottom text */}
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600">Don’t have an account?</span>
             <Link to="/signup" a href="#" className="font-bold text-black ml-1">
@@ -107,11 +107,11 @@ export default function SignIn() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/*bottombar*/}
       <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
-  <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
     
-    {/* Sol Kısım - Marka Bilgisi */}
+    {/*about*/}
     <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
       <h2 className="text-2xl font-semibold text-gray-900">WealthGuard</h2>
       <p className="text-sm mt-2">
@@ -119,7 +119,7 @@ export default function SignIn() {
       </p>
     </div>
 
-    {/* Orta Kısım - Linkler */}
+    {/*aboutinfo*/}
     <div className="text-center">
       <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
       <ul className="text-sm space-y-1 mt-2">
@@ -129,14 +129,13 @@ export default function SignIn() {
       </ul>
     </div>
 
-    {/* Sağ Kısım - Copyright (Y ekseninde ortalandı) */}
+    {/*copyright*/}
     <div className="flex items-center h-full">
       <p className="text-xs text-gray-500">© 2025 WealthGuard. All rights reserved.</p>
     </div>
 
-  </div>
-</footer>
-
-    </div>
-  );
-}
+        </div>
+        </footer>
+      </div>
+    );
+  }
