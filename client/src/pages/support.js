@@ -36,7 +36,7 @@ export default function Support() {
       </nav>
 
       {/* support */}
-      <div className="flex-grow flex items-center justify-center bg-gray-100 p-4">
+      <div className="flex-grow flex items-center justify-center bg-gray-100 p-4 h-screen w-screen">
         <div className="bg-white shadow-lg rounded-3xl p-6 w-full max-w-lg border-4 border-gray-500">
           <h2 className="text-2xl font-bold text-center text-gray-900">Need Help? Contact Support</h2>
           <p className="text-sm text-gray-600 text-center mt-2">

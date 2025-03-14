@@ -63,15 +63,16 @@ export default function SignUp() {
       </nav>
 
       {/* signup form*/}
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="h-screen w-screen flex items-center justify-center ">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px] border-4 border-gray-500">
           <h2 className="text-xl font-semibold text-center">Create your account</h2>
           <p className="text-sm text-gray-600 text-center">Welcome! Please fill in the details to get started.</p>
 
-          {/* Form */}
+          {/*form*/}
           <form onSubmit={handleSubmit} className="space-y-3 mt-4">
+            {/*full name*/}
             <div>
-              <label className="text-sm font-medium">Full Name</label>
+              <label className="text-sm font-medium block mb-1">Full Name</label>
               <input
                 type="text"
                 name="fullName"
@@ -82,8 +83,9 @@ export default function SignUp() {
               />
             </div>
 
+            {/*mail */}
             <div>
-              <label className="text-sm font-medium">E-mail Address</label>
+              <label className="text-sm font-medium block mb-1">E-mail Address</label>
               <input
                 type="email"
                 name="email"
@@ -94,36 +96,34 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Password Input */}
-            <label className="text-sm font-medium">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full p-2 pr-10 border border-gray-300 rounded-lg"
-                required
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
+            {/*password*/}
+            <div>
+              <label className="text-sm font-medium block mb-1">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-lg"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
-
-            {/* Hata Mesajı */}
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-
-            {/* Continue Butonu */}
+            {/*continue*/}
             <button type="submit" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
               Continue
             </button>
           </form>
 
-          {/* Alt Kısım */}
+          {/*bottom*/}
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600">Already have an account?</span>
             <Link to="/signin" className="font-bold text-black ml-1">
@@ -149,9 +149,9 @@ export default function SignUp() {
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
                 <ul className="text-sm space-y-1 mt-2">
-                  <li><a href="#" className="hover:text-gray-900">About</a></li>
-                  <li><a href="#" className="hover:text-gray-900">Contact Us</a></li>
-                  <li><a href="#" className="hover:text-gray-900">Support</a></li>
+                <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
+                <li> <Link to ="/contactus"className="hover:text-gray-900">Contact Us</Link></li>
+              <li> <Link to ="/support" className="hover:text-gray-900">Support</Link></li>
                 </ul>
               </div>
 
