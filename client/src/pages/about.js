@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "../components//ui/button";
 
-export default function HomePage() {
+export default function About() {
     return (
       <div className="h-screen w-screen bg-white flex flex-col font-worksans">
         {/* headbar */}
@@ -36,24 +36,26 @@ export default function HomePage() {
     </div>
     </nav>
   
-        {/* mainpart */}
-        <section className="flex flex-col md:flex-row items-center justify-center w-full px-20 mx-auto h-[calc(100vh-100px)] gap-20 overflow-hidden">
-          {/* image */}
-          <div className="w-full md:w-1/2 flex justify-end">
-            <img 
-              src="/main.jpg" 
-              alt="WealthGuard Illustration" 
-              className="max-w-[700px] w-full"
-            />
-          </div>
-  
-          {/*text*/}
-          <div className="w-full md:w-1/2 text-center md:text-left flex justify-start">
-            <h1 className="text-[70px] font-bold italic text-gray-800 leading-snug">
-              Protection <br /> with precision, <br /> every decision.
-            </h1>
-          </div>
-        </section>
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gray-100 px-6 py-12"
+     >
+      <div className="max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">About</h1>
+        <p className="text-lg text-gray-700 leading-relaxed">
+          This personal finance and budget tracking application is designed to help individuals 
+          gain better control over their finances. Users can easily track their income, 
+          manage recurring expenses, and categorize their daily spending to stay within their budget.   
+          The app offers insightful tools that analyze spending patterns and provide 
+          recommendations for saving money, helping users make more informed financial decisions.
+          Additionally, the application supports multi-currency transactions, allowing users 
+          to track expenses in different currencies with real-time exchange rate data.      
+          Users can set financial goals, track their progress, and receive timely reminders 
+          or alerts to ensure they stay on track with their budgets.
+          With its user-friendly interface and helpful features, the web app aims to promote 
+          financial wellness and improve money management for people of all backgrounds.
+        </p>
+      </div>
+    </div>
+
   
         {/*bottombar*/}
         <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
@@ -71,7 +73,7 @@ export default function HomePage() {
     <div className="text-center">
       <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
       <ul className="text-sm space-y-1 mt-2">
-        <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
+         <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
         <li> <Link to ="/contactus"className="hover:text-gray-900">Contact Us</Link></li>
         <li> <Link to ="/support" className="hover:text-gray-900">Support</Link></li>
       </ul>

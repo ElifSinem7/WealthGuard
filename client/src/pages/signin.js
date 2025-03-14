@@ -35,7 +35,7 @@ export default function SignIn() {
       </nav>
 
       {/* signin */}
-      <div className="flex items-center justify-center min-h-screen ">
+      <div className="flex items-center justify-center h-screen w-screen">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px] border-4 border-gray-500">
           {/* exp about sign */}
           <h2 className="text-xl font-semibold text-center">
@@ -123,9 +123,9 @@ export default function SignIn() {
     <div className="text-center">
       <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
       <ul className="text-sm space-y-1 mt-2">
-        <li><a href="#" className="hover:text-gray-900">About</a></li>
-        <li><a href="#" className="hover:text-gray-900">Contact Us</a></li>
-        <li><a href="#" className="hover:text-gray-900">Support</a></li>
+      <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
+        <li> <Link to ="/contactus"className="hover:text-gray-900">Contact Us</Link></li>
+        <li> <Link to ="/support" className="hover:text-gray-900">Support</Link></li>
       </ul>
     </div>
 
