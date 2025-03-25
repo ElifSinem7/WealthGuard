@@ -1,29 +1,41 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const db = require('./config/db');
 const userRoutes = require('./src/routes/userRoutes');
-const authRoutes = require('./src/routes/authRoutes'); 
-const transactionsRoutes = require('./src/routes/transactionsRoutes');
-const categoriesRoutes = require('./src/routes/categoriesRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const transactionRoutes = require('./src/routes/transactionRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes'); // Dosya adı düzeltildi
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware'ler
-app.use(cors());
+// CORS Ayarları
+const corsOptions = {
+    origin: process.env.CLIENT_URL || '*', // Daha güvenli olması için .env'den okunabilir
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type,Authorization'
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// API yönlendirmeleri
+// API Yönlendirmeleri
 app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes);  
-app.use('/api/transactions', transactionsRoutes);
-app.use('/api/categories', categoriesRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/categories', categoryRoutes);
 
+// Ana Route
 app.get('/', (req, res) => {
-  res.send('🚀 API Çalışıyor!');
+    res.send('🚀 API Çalışıyor!');
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Sunucu ${PORT} portunda çalışıyor.`);
+// Hata Yakalama Middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
 });
+
+// Server Başlatma
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
