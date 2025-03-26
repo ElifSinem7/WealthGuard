@@ -4,9 +4,9 @@ const { addCategory, getUserCategories } = require('../controllers/categoryContr
 const authMiddleware = require('../middleware/auth');
 
 // Yeni kategori ekleme (Sadece giriş yapmış kullanıcılar ekleyebilir)
-router.post('/', authMiddleware, addCategory);
+router.post('/add', authMiddleware, addCategory);
 
 // Kullanıcının tüm kategorilerini listeleme
-router.get('/', authMiddleware, getUserCategories);
+router.get('/get', authMiddleware, getUserCategories);
 
 module.exports = router;
