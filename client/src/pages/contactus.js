@@ -40,10 +40,10 @@ export default function ContactUs() {
       <div className="max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
         <p className="text-lg text-gray-700 leading-relaxed">
-         <b>Elif Sinem Genç</b> <br /> mail
+         <b>Elif Sinem Genç</b> <br /> elifsinem.genc@agu.edu.tr
         </p>
         <p className="text-lg text-gray-700 leading-relaxed mt-4">
-          <b>Gülden Akkuş</b> <br /> mail
+          <b>Gülden Akkuş</b> <br /> gulden.akkus@agu.edu.tr
         </p>
         <p className="text-lg text-gray-700 leading-relaxed mt-4">
           <b>Emine Kaya</b> <br /> emine.kaya@agu.edu.tr

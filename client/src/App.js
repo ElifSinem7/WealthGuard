@@ -5,6 +5,7 @@ import SignUp from "./pages/signup";
 import About from "./pages/about";
 import ContactUs from "./pages/contactus";
 import Support from "./pages/support";
+import MainDashboard from "./pages/maindashboard";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contactus" element={<ContactUs />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/maindashboard" element={<MainDashboard />} />
       </Routes>
     </Router>
   );

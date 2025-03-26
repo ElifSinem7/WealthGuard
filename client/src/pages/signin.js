@@ -82,9 +82,11 @@ export default function SignIn() {
                 </button>
               </div>
             </div>
-            <button type="submit" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
+            <Link to="/maindashboard">
+            <button type="button" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
               Continue
             </button>
+          </Link>
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600">Don’t have an account?</span>

@@ -118,9 +118,11 @@ export default function SignUp() {
               </div>
             </div>
             {/*continue*/}
-            <button type="submit" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
-              Continue
-            </button>
+              <Link to="/signin">
+              <button type="button" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
+                Continue
+              </button>
+            </Link>
           </form>
 
           {/*bottom*/}

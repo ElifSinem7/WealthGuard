@@ -53,6 +53,11 @@ export default function Support() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
                 required
+                onInvalid={(e) => e.target.setCustomValidity(" ")} 
+                //bu mesaj default olarak verılıyordu o yuzden bız bunu manual olarak ayarlamak ıstedık, 
+                // bunu koyarsak manual olarak ayarlamıs oluyoruz ehger koymazsak bu otomaıtık olarak kendı kendıne uyarı verıyor
+                onInput={(e) => e.target.setCustomValidity("")}
+              
               />
             </div>
 
