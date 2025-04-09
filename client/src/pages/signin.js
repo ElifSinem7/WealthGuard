@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button } from "../components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 
@@ -26,7 +25,7 @@ export default function SignIn() {
 
   return (
     <div className="h-screen w-screen bg-white flex flex-col font-worksans">
-      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
+      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover" />
           <Link to="/" className="text-5xl italic font-bold text-gray-900">
@@ -82,11 +81,11 @@ export default function SignIn() {
                 </button>
               </div>
             </div>
-            <Link to="/maindashboard">
-            <button type="button" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
-              Continue
-            </button>
-          </Link>
+            <form onSubmit={handleLogin} className="space-y-3">
+              <button type="submit" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
+                Continue
+              </button>
+            </form>
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600">Don’t have an account?</span>
@@ -96,7 +95,8 @@ export default function SignIn() {
           </div>
         </div>
       </div>
-      <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
+
+      <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
     
     {/*about*/}

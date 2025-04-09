@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { Button } from "../components//ui/button";
 
 export default function HomePage() {
     return (
       <div className="h-screen w-screen bg-white flex flex-col font-worksans">
         {/* headbar */}
-        <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
+        <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
           {/* logo */}
           <div className="flex items-center gap-3">
           <img 
@@ -23,18 +21,18 @@ export default function HomePage() {
           </div>
           
            {/* right */}
-    <div className="flex items-center space-x-6">
-        <Link to="/signin" className="text-xl font-semibold text-gray-700 hover:text-gray-900">
-            Sign In
-          </Link>
-          <Link to="/signup"
-            className="px-6 py-3 text-xl font-semibold text-gray-900 rounded-full hover:opacity-80"
-            style={{ backgroundColor: "#A6B3A4" }}
-          >
-            Sign Up
-          </Link>
-    </div>
-    </nav>
+          <div className="flex items-center space-x-6">
+              <Link to="/signin" className="text-xl font-semibold text-gray-700 hover:text-gray-900">
+                  Sign In
+                </Link>
+                <Link to="/signup"
+                  className="px-6 py-3 text-xl font-semibold text-gray-900 rounded-full hover:opacity-80"
+                  style={{ backgroundColor: "#A6B3A4" }}
+                >
+                  Sign Up
+                </Link>
+          </div>
+          </nav>
   
         {/* mainpart */}
         <section className="flex flex-col md:flex-row items-center justify-center w-full px-20 mx-auto h-[calc(100vh-100px)] gap-20 overflow-hidden">
@@ -56,7 +54,7 @@ export default function HomePage() {
         </section>
   
         {/*bottombar*/}
-        <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
+        <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
     
     {/*about*/}
