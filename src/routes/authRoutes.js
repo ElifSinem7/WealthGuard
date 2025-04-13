@@ -1,15 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('../../config/db');
+const pool = require('../config/db');
 const cors = require('cors');
 require('dotenv').config();
 
-const router = express.Router();
+const router = express.Router();  // express.Router() kullanmalısınız
 
 // CORS Middleware
 router.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", 
     credentials: true
 }));
 
@@ -35,16 +35,24 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: "Geçersiz e-posta veya şifre" });
         }
 
-        // JWT Token oluşturma
+        // JWT Access Token oluşturma
         const token = jwt.sign(
             { userId: user.id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } // Süreyi .env'den al
         );
 
+        // JWT Refresh Token oluşturma
+        const refreshToken = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_REFRESH_SECRET, // Refresh token için farklı bir secret
+            { expiresIn: '30d' } // Refresh token süresi
+        );
+
         res.json({
             message: "Giriş başarılı",
-            token,
+            token, // Access token
+            refreshToken, // Refresh token
             user: { id: user.id, name: user.name, email: user.email }
         });
 
@@ -84,9 +92,17 @@ router.post('/signup', async (req, res) => {
                 { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
             );
 
+            // Refresh token da oluşturulacak
+            const refreshToken = jwt.sign(
+                { userId: newUsers[0].id },
+                process.env.JWT_REFRESH_SECRET, // Refresh token için farklı bir secret
+                { expiresIn: '30d' }
+            );
+
             return res.status(201).json({
                 message: "Kullanıcı başarıyla kaydedildi",
                 token,
+                refreshToken,
                 user: newUsers[0]
             });
         } else {
@@ -96,6 +112,30 @@ router.post('/signup', async (req, res) => {
         console.error("Signup error:", error);
         res.status(500).json({ message: "Sunucu hatası" });
     }
+});
+
+// Refresh Token ile Yeni Access Token Almak
+router.post('/refresh-token', (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(403).json({ message: "Refresh token gerekli" });
+    }
+
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: "Geçersiz refresh token" });
+        }
+
+        // Yeni access token oluşturma
+        const newAccessToken = jwt.sign(
+            { userId: decoded.userId },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } // Yeni access token süresi
+        );
+
+        res.json({ token: newAccessToken });
+    });
 });
 
 // Kullanıcı Çıkışı (Logout) - Client tarafında token'ı silmek yeterlidir

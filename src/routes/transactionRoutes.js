@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../../config/db'); // Veritabanı bağlantısı
+const pool = require('../config/db'); // Veritabanı bağlantısı
 const router = express.Router();
 
 // Transaction ekleme route'u

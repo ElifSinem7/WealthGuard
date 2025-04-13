@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const db = require('../../config/db');
+const db = require('../config/db');
 
 // Recurring işlemi çalıştıran fonksiyon
 async function runRecurringTransactions() {

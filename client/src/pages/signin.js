@@ -1,15 +1,56 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
+import { getMessaging, getToken } from "firebase/messaging";
+import { initializeApp } from "firebase/app";
+
+// Firebase yapılandırması
+const firebaseConfig = {
+  apiKey: "AIzaSyDo8WoY9c_lH-EFKbtg-VVp34JXWcb5Xjo",
+  authDomain: "wealthguard-6ae44.firebaseapp.com",
+  projectId: "wealthguard-6ae44",
+  storageBucket: "wealthguard-6ae44.appspot.com", // düzeltildi
+  messagingSenderId: "755180678710",
+  appId: "1:755180678710:web:192dc360a5b0a7b324f297"
+};
+
+// Firebase başlatma
+const firebaseApp = initializeApp(firebaseConfig);
+const messaging = getMessaging(firebaseApp);
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const saveFcmToken = async (userId, token) => {
+    try {
+      await axios.post("http://localhost:5000/api/save-fcm-token", {
+        userId,
+        token,
+      });
+      console.log("✅ FCM Token başarıyla kaydedildi:", token);
+    } catch (err) {
+      console.error("❌ FCM Token kaydedilirken hata:", err);
+    }
+  };
+
+  const requestFcmToken = async (userId) => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const token = await getToken(messaging, {
+          vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+        });
+        if (token) {
+          await saveFcmToken(userId, token);
+        }
+      }
+    } catch (err) {
+      console.error("❌ FCM Token alınamadı:", err);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,11 +59,22 @@ export default function SignIn() {
       const response = await axios.post("http://localhost:5000/api/login", { email, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      
+      // FCM Token talep etme ve kaydetme
+      await requestFcmToken(response.data.user.id);
+      
+      // Ana sayfaya yönlendir
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      // Hata mesajı yönetimi
+      if (err.response) {
+        setError(err.response.data.message || "Login failed");
+      } else {
+        setError("Sunucu hatası, lütfen tekrar deneyin");
+      }
     }
   };
+  
 
   return (
     <div className="h-screen w-screen bg-white flex flex-col font-worksans">
@@ -33,18 +85,9 @@ export default function SignIn() {
             WealthGuard
           </Link>
         </div>
-        <div className="flex items-center space-x-6">
-          <Link to="/signin" className="text-xl font-semibold text-gray-700 hover:text-gray-900">
-            Sign In
-          </Link>
-          <Link to="/signup" className="px-6 py-3 text-xl font-semibold text-gray-900 rounded-full hover:opacity-80" style={{ backgroundColor: "#A6B3A4" }}>
-            Sign Up
-          </Link>
-        </div>
       </nav>
 
-      {/* signin */}
-      <div className="flex items-center justify-center h-screen w-screen ">
+      <div className="flex items-center justify-center flex-1">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-[400px] border-4 border-gray-500">
           <h2 className="text-xl font-semibold text-center">
             Sign in to <span className="font-bold">WealthGuard</span>
@@ -64,29 +107,17 @@ export default function SignIn() {
               />
             </div>
             <div>
-              
               <label className="text-sm font-medium">Password</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg pr-10"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-2 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
             </div>
-            <Link to="/maindashboard">
-            <button type="button" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
-              Continue
+            <button type="submit" className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4">
+              Sign In
             </button>
-          </Link>
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-gray-600">Don’t have an account?</span>
@@ -96,32 +127,10 @@ export default function SignIn() {
           </div>
         </div>
       </div>
+
       <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
-    
-    {/*about*/}
-    <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
-      <h2 className="text-2xl font-semibold text-gray-900">WealthGuard</h2>
-      <p className="text-sm mt-2">
-        WealthGuard helps you manage your budget, track expenses, and achieve your financial goals with smart insights and automation.
-      </p>
-    </div>
-
-    {/*aboutinfo*/}
-    <div className="text-center">
-      <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
-      <ul className="text-sm space-y-1 mt-2">
-        <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
-        <li> <Link to ="/contactus"className="hover:text-gray-900">Contact Us</Link></li>
-        <li> <Link to ="/support" className="hover:text-gray-900">Support</Link></li>
-      </ul>
-    </div>
-
-    {/*copyright*/}
-    <div className="flex items-center h-full">
-      <p className="text-xs text-gray-500">© 2025 WealthGuard. All rights reserved.</p>
-    </div>
-
+        <div className="max-w-6xl mx-auto text-center text-xs text-gray-500">
+          © 2025 WealthGuard. All rights reserved.
         </div>
       </footer>
     </div>

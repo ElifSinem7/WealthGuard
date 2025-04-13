@@ -13,10 +13,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "firebase-admin": "^13.2.0",
     "jsonwebtoken": "^9.0.2",
     "module": "^1.1.0",
     "mysql2": "^3.14.0",
     "node-cron": "^3.0.3",
+    "react-scripts": "^5.0.1",
     "sequelize": "^6.30.0"
   },
   "devDependencies": {
