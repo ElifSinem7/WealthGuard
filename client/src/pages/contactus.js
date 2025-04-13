@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { Button } from "../components//ui/button";
 
 export default function ContactUs() {
     return (
       <div className="h-screen w-screen bg-white flex flex-col font-worksans">
         {/* headbar */}
-        <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
+        <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
           {/* logo */}
           <div className="flex items-center gap-3">
           <img 
@@ -36,7 +34,7 @@ export default function ContactUs() {
     </div>
     </nav>
   
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gray-100 px-6 py-12">
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gray-50 px-6 py-12">
       <div className="max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
         <p className="text-lg text-gray-700 leading-relaxed">
@@ -53,7 +51,7 @@ export default function ContactUs() {
 
   
         {/*bottombar*/}
-        <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
+        <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
     
     {/*about*/}

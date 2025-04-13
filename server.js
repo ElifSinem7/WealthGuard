@@ -27,12 +27,11 @@ app.use(express.json());
 
 // API Yönlendirmeleri
 app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/categories', categoryRoutes);
-
-// Bildirim rotaları
-app.use('/api/notifications', notificationRoutes); // Bu doğru yoldan yönlendiriliyor
+app.use('/api/auth', authRoutes);  
+app.use('/api/transactions', transactionsRoutes);S
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/categories', categoriesRoutes); 
+app.use('/api/recurring-transactions', transactionsRoutes); 
 
 // Cron Job'u Manuel Çalıştırma Endpoint'i
 app.get('/api/test-recurring', async (req, res) => {

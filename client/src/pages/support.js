@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Button } from "../components/ui/button";
 
 export default function Support() {
   const [email, setEmail] = useState("");
@@ -14,7 +13,7 @@ export default function Support() {
   return (
     <div className="h-screen w-screen bg-white flex flex-col font-worksans">
       {/* headbar */}
-      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
+      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover" />
           <Link to="/" className="text-5xl italic font-bold text-gray-900">
@@ -36,7 +35,7 @@ export default function Support() {
       </nav>
 
       {/* support */}
-      <div className="flex-grow flex items-center justify-center bg-gray-100 p-4 h-screen w-screen">
+      <div className="flex-grow flex items-center justify-center bg-gray-50 p-4 h-screen w-screen">
         <div className="bg-white shadow-lg rounded-3xl p-6 w-full max-w-lg border-4 border-gray-500">
           <h2 className="text-2xl font-bold text-center text-gray-900">Need Help? Contact Support</h2>
           <p className="text-sm text-gray-600 text-center mt-2">
@@ -83,7 +82,7 @@ export default function Support() {
       </div>
 
       {/* bottombar*/}
-      <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
+      <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
           <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
             <h2 className="text-2xl font-semibold text-gray-900">WealthGuard</h2>

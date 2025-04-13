@@ -93,7 +93,7 @@ export default function SignUp() {
   return (
     <div className="h-screen w-screen bg-white flex flex-col font-worksans">
       {/* headbar */}
-      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-100 border-b">
+      <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover" />
           <Link to="/" className="text-5xl italic font-bold text-gray-900">
@@ -185,8 +185,8 @@ export default function SignUp() {
         </div>
       </div>
 
-      {/* footer */}
-      <footer className="w-full bg-gray-100 border-t border-gray-300 py-8">
+      {/*bottombar*/}
+      <footer className="w-full bg-gray-20 border-t border-gray-100 py-8">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
           <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
             <h2 className="text-2xl font-semibold text-gray-900">WealthGuard</h2>
