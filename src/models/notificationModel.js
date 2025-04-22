@@ -1,36 +1,33 @@
-const db = require('../config/db');
+const pool = require('../config/db'); // Veritabanı bağlantısı
 
-const Notification = {
-  // 🔔 Yeni bir bildirimi veritabanına kaydet
-  create: async ({ userId, title, body }) => {
-    try {
-      const query = `
-        INSERT INTO notifications (user_id, title, body, created_at)
-        VALUES (?, ?, ?, NOW())
-      `;
-      await db.execute(query, [userId, title, body]);
-    } catch (error) {
-      console.error("❌ Bildirim veritabanına kaydedilirken hata:", error);
-      throw error;
-    }
-  },
+// Yeni bir bildirim eklemek için model
+const createNotification = async (userId, body) => {
+  try {
+    const query = `INSERT INTO notifications (user_id, body, created_at) VALUES (?, ?, NOW())`;
 
-  // 📩 Kullanıcının tüm bildirimlerini getir
-  getByUserId: async (userId) => {
-    try {
-      const query = `
-        SELECT id, title, body, created_at
-        FROM notifications
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-      `;
-      const [rows] = await db.execute(query, [userId]);
-      return rows;
-    } catch (error) {
-      console.error("❌ Kullanıcı bildirimleri alınırken hata:", error);
-      throw error;
-    }
-  },
+    const [result] = await pool.query(query, [userId, body]);
+    
+    return result.insertId; // Eklendiğinde bildirim ID'sini döndürür
+  } catch (error) {
+    console.error('Bildirim veritabanına kaydedilirken hata:', error);
+    throw error;
+  }
 };
 
-module.exports = Notification;
+// Kullanıcıya ait bildirimleri almak için model
+const getNotificationsByUserId = async (userId) => {
+  try {
+    const query = `SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC`;
+    const [notifications] = await pool.query(query, [userId]);
+
+    return notifications;
+  } catch (error) {
+    console.error('Bildirimler alınırken hata:', error);
+    throw error;
+  }
+};
+
+module.exports = {
+  createNotification,
+  getNotificationsByUserId
+};

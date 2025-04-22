@@ -1,42 +1,53 @@
 const db = require('../config/db');
 
-// 📌 Kullanıcıları Getir
-exports.getUsers = (req, res) => {
-  db.query('SELECT * FROM users', (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Sunucu hatası' });
-    } else {
-      res.json(results);
-    }
-  });
-};
-
-// 📌 Yeni Kullanıcı Ekle
+// 📌 Yeni Kullanıcı Ekle (Sadece Backend'e Kaydet)
 exports.createUser = (req, res) => {
-  const { name, email, balance } = req.body;
-  const sql = 'INSERT INTO users (name, email, balance) VALUES (?, ?, ?)';
-  
-  db.query(sql, [name, email, balance], (err, result) => {
+  const { name, email } = req.body;
+
+  // Veri doğrulama
+  if (!name || !email) {
+    return res.status(400).json({ message: 'Geçersiz giriş verisi' });
+  }
+
+  const sql = 'INSERT INTO users (name, email) VALUES (?, ?)';
+  db.query(sql, [name, email], (err, result) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Kullanıcı eklenemedi' });
+      console.error('Database error: ', err);
+      res.status(500).json({ message: 'Kullanıcı eklenemedi', error: err.message });
     } else {
       res.status(201).json({ message: 'Kullanıcı eklendi', userId: result.insertId });
     }
   });
 };
 
-// 📌 Kullanıcı Güncelle
+// 📌 Kullanıcıları Getir
+exports.getUsers = (req, res) => {
+  db.query('SELECT * FROM users', (err, results) => {
+    if (err) {
+      console.error('Database error: ', err);
+      res.status(500).json({ message: 'Sunucu hatası', error: err.message });
+    } else {
+      res.json(results);
+    }
+  });
+};
+
+// 📌 Kullanıcı Güncelle (sadece name ve email güncellenebilir)
 exports.updateUser = (req, res) => {
   const { id } = req.params;
-  const { balance } = req.body;
-  const sql = 'UPDATE users SET balance = ? WHERE id = ?';
-  
-  db.query(sql, [balance, id], (err, result) => {
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ message: 'Geçersiz veri' });
+  }
+
+  const sql = 'UPDATE users SET name = ?, email = ? WHERE id = ?';
+  db.query(sql, [name, email, id], (err, result) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Güncelleme başarısız' });
+      console.error('Database error: ', err);
+      res.status(500).json({ message: 'Güncelleme başarısız', error: err.message });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ message: 'Kullanıcı bulunamadı' });
     } else {
       res.json({ message: 'Kullanıcı güncellendi' });
     }
@@ -46,12 +57,14 @@ exports.updateUser = (req, res) => {
 // 📌 Kullanıcı Sil
 exports.deleteUser = (req, res) => {
   const { id } = req.params;
+
   const sql = 'DELETE FROM users WHERE id = ?';
-  
   db.query(sql, [id], (err, result) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Kullanıcı silinemedi' });
+      console.error('Database error: ', err);
+      res.status(500).json({ message: 'Kullanıcı silinemedi', error: err.message });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ message: 'Kullanıcı bulunamadı' });
     } else {
       res.json({ message: 'Kullanıcı başarıyla silindi' });
     }

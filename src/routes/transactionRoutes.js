@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('../config/db'); // Veritabanı bağlantısı
+const { createNotification } = require('../controllers/notificationController'); // Bildirim fonksiyonu
 const router = express.Router();
 
 // Transaction ekleme route'u
@@ -43,6 +44,13 @@ router.post('/', async (req, res) => {
       description || null,  // Eğer description boşsa NULL olarak ekle
       transaction_date
     ]);
+
+    // Başarılı ekleme sonrası bildirim oluştur
+    const title = (amount > 0) ? 'Yeni Gelir Eklendi' : 'Yeni Gider Eklendi';
+    const message = `${description || 'Açıklama bulunmuyor'} için ${amount}₺ ${amount > 0 ? 'gelir' : 'gider'} eklendi.`;
+
+    // 🟢 Bildirim oluştur ve e-posta gönder
+    await createNotification(user_id, title, message);
 
     // Başarılı ekleme sonrası cevap gönder
     res.status(201).json({

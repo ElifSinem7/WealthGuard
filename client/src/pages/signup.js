@@ -1,23 +1,9 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
-import { getMessaging, getToken } from "firebase/messaging";
-import { initializeApp } from "firebase/app";
 
-// Firebase yapılandırması (Firebase projenizin ayarlarını buraya ekleyin)
-const firebaseConfig = {
-  apiKey: "AIzaSyDo8WoY9c_lH-EFKbtg-VVp34JXWcb5Xjo",
-  authDomain: "wealthguard-6ae44.firebaseapp.com",
-  projectId: "wealthguard-6ae44",
-  storageBucket: "wealthguard-6ae44.appspot.com", // düzeltildi
-  messagingSenderId: "755180678710",
-  appId: "1:755180678710:web:192dc360a5b0a7b324f297"
-};
-
-// Firebase başlatma
-const firebaseApp = initializeApp(firebaseConfig);
-const messaging = getMessaging(firebaseApp);
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,36 +20,7 @@ export default function SignUp() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // FCM token'ını backend'e kaydet
-  const saveFcmToken = async (userId, token) => {
-    try {
-      await axios.post("http://localhost:5000/api/save-fcm-token", {
-        userId,
-        token,
-      });
-      console.log("✅ FCM Token başarıyla kaydedildi:", token);
-    } catch (err) {
-      console.error("❌ FCM Token kaydedilirken hata:", err);
-    }
-  };
-
-  // FCM token'ını al ve backend'e kaydet
-  const requestFcmToken = async (userId) => {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const token = await getToken(messaging, {
-          vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
-        });        
-        if (token) {
-          await saveFcmToken(userId, token);
-        }
-      }
-    } catch (err) {
-      console.error("❌ FCM Token alınamadı:", err);
-    }
-  };
-
+  
   // Form gönderme işlemi
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,11 +34,7 @@ export default function SignUp() {
       });
 
       if (response.status === 201) {
-        localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-
-        // FCM token'ını al ve kaydet
-        await requestFcmToken(response.data.user.id);
 
         navigate("/signin");
       }

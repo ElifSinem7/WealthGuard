@@ -1,6 +1,7 @@
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useEffect } from "react";
 import axios from "axios";
+import io from "socket.io-client";
 import HomePage from "./pages/homepage";
 import SignIn from "./pages/signin";
 import SignUp from "./pages/signup";
@@ -12,77 +13,60 @@ import Payments from "./pages/payments";
 import PaMod from "./pages/paymod";
 import Exchange from "./pages/exchange";
 import Settings from "./pages/settings";
-import { requestPermissionAndGetToken } from './firebase'; 
 import MainDashboard from "./pages/maindashboard";
 import Modal from "./pages/AddTransactionModal";
 import RecurringTransactions from "./pages/recurringTransactionPage";
+import NotificationModal from "./components/ui/NotificationModal"; // Yeni eklediğimiz modal bileşeni
 import 'material-icons/iconfont/material-icons.css';
 
+// Socket.io server adresi
+const socket = io("http://localhost:5000");
+
 function App() {
+  const [openModal, setOpenModal] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
-    const registerFCMToken = async () => {
-      try {
-        // Kullanıcıdan izin al ve token'ı al
-        const token = await requestPermissionAndGetToken();
+    // Socket.io ile bildirim almak
+    socket.on("notification", (message) => {
+      // Yeni bildirimi ekle
+      const newNotification = { message: message, date: new Date().toLocaleString() };
+      setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+      setOpenModal(true); // Modalı aç
+    });
 
-        if (!token) {
-          console.log('❌ Bildirim izni reddedildi veya token alınamadı.');
-          return;
-        }
-
-        console.log('✅ Alınan FCM Token:', token);
-
-        // LocalStorage'dan userId'yi al
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-          console.log('ℹ️ Kullanıcı giriş yapmamış. Token kaydedilmeyecek.');
-          return;
-        }
-
-        // Token'ı backend'e gönder
-        await axios.post('http://localhost:5000/api/notifications/save-fcm-token', {
-          userId,
-          token
-        });
-
-        console.log("✅ FCM token backend'e başarıyla gönderildi.");
-      } catch (error) {
-        console.error("❌ FCM token gönderiminde hata:", error);
-      }
+    // Cleanup: Component unmount olduğunda socket bağlantısını temizle
+    return () => {
+      socket.off("notification");
     };
-
-    registerFCMToken();
-
-    // Anlık bildirimleri dinlemek için
-    // Bu kısım, frontend'de anlık bildirim alındığında çalışacak.
-    // Bu fonksiyonun çalışabilmesi için frontendde FCM yapılandırması gereklidir.
-    // Eğer anlık bildirim almayı istiyorsanız, aşağıdaki kodu aktif edebilirsiniz.
-    // messaging.onMessage((payload) => {
-    //   console.log("📩 Anlık bildirim alındı:", payload);
-    // });
-
   }, []);
 
+  const closeModal = () => {
+    setOpenModal(false); // Modalı kapat
+  };
+
   return (
-        <Router>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contactus" element={<ContactUs />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/exchange" element={<Exchange />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route path="/paymod" element={<PaMod />} />
-            <Route path="/AddTransactionModal" element={<Modal />} />
-            <Route path="/maindashboard" element={<MainDashboard />} />
-            <Route path="/recurringTransactionPage" element={<RecurringTransactions />} />
-          </Routes>
-        </Router>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contactus" element={<ContactUs />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/exchange" element={<Exchange />} />
+        <Route path="/payments" element={<Payments />} />
+        <Route path="/paymod" element={<PaMod />} />
+        <Route path="/AddTransactionModal" element={<Modal />} />
+        <Route path="/maindashboard" element={<MainDashboard />} />
+        <Route path="/recurringTransactionPage" element={<RecurringTransactions />} />
+      </Routes>
+
+      {/* Bildirim modalını ekliyoruz */}
+      <NotificationModal open={openModal} onClose={closeModal} notifications={notifications} />
+    </Router>
   );
 }
 

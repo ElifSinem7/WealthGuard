@@ -1,77 +1,41 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { getMessaging, getToken } from "firebase/messaging";
-import { initializeApp } from "firebase/app";
-
-// Firebase yapılandırması
-const firebaseConfig = {
-  apiKey: "AIzaSyDo8WoY9c_lH-EFKbtg-VVp34JXWcb5Xjo",
-  authDomain: "wealthguard-6ae44.firebaseapp.com",
-  projectId: "wealthguard-6ae44",
-  storageBucket: "wealthguard-6ae44.appspot.com",
-  messagingSenderId: "755180678710",
-  appId: "1:755180678710:web:192dc360a5b0a7b324f297",
-};
-
-// Firebase başlatma
-const firebaseApp = initializeApp(firebaseConfig);
-const messaging = getMessaging(firebaseApp);
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const saveFcmToken = async (userId, token) => {
-    try {
-      await axios.post("http://localhost:5000/api/save-fcm-token", {
-        userId,
-        token,
-      });
-      console.log("✅ FCM Token başarıyla kaydedildi:", token);
-    } catch (err) {
-      console.error("❌ FCM Token kaydedilirken hata:", err);
-    }
-  };
-
-  const requestFcmToken = async (userId) => {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const token = await getToken(messaging, {
-          vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
-        });
-        if (token) {
-          await saveFcmToken(userId, token);
-        }
-      }
-    } catch (err) {
-      console.error("❌ FCM Token alınamadı:", err);
-    }
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
     try {
-      const response = await axios.post("http://localhost:5000/api/login", { email, password });
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
 
-      // FCM Token talep etme ve kaydetme
-      await requestFcmToken(response.data.user.id);
-
-      // Ana sayfaya yönlendir
-      navigate("/dashboard");
-    } catch (err) {
-      // Hata mesajı yönetimi
-      if (err.response) {
-        setError(err.response.data.message || "Login failed");
+      if (response.data && response.data.user) {
+        // Kullanıcıyı localStorage'a kaydet
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        navigate("/maindashboard");
       } else {
-        setError("Sunucu hatası, lütfen tekrar deneyin");
+        setError("Geçersiz giriş bilgileri");
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message); // Backend'den gelen mesajı göster
+      } else {
+        setError("Giriş yaparken bir hata oluştu. Lütfen tekrar deneyin.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,6 +67,7 @@ export default function SignIn() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                required
               />
             </div>
             <div>
@@ -112,13 +77,15 @@ export default function SignIn() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-lg"
+                required
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-gray-400 text-black py-2 rounded-lg mt-4"
+              className={`w-full ${loading ? 'bg-gray-300' : 'bg-gray-400'} text-black py-2 rounded-lg mt-4`}
+              disabled={loading}
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
           <div className="mt-4 text-center text-sm">

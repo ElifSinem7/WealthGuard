@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaCar, FaShoppingCart, FaMusic, FaVideo, FaSignOutAlt, FaSearch, FaBell, FaTrash, FaPlus, FaEdit } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useNavigate } from "react-router-dom";
+import NotificationModal from '../components/ui/NotificationModal';
 
 //mock data
 const mockTransactions = [
@@ -240,6 +241,8 @@ const handleSubmitNewGoal = () => {
 
   const [username] = useState("examp name");
   const [nickname] = useState("examp nickname");
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+
 
   const COLORS = ['#8B5CF6', '#C084FC', '#DDD6FE', '#A78BFA'];
 
@@ -356,6 +359,13 @@ const handleSubmitNewGoal = () => {
       default: return <FaCreditCard className="h-4 w-4" />;
     }
   };
+  const [notifications, setNotifications] = useState([
+    { message: "Bütçen %80 doldu.", date: "2025-04-18", read: false },
+    { message: "Yeni bir işlem eklendi.", date: "2025-04-17", read: true },
+    { message: "Hedefine 500₺ daha kaldı!", date: "2025-04-15", read: false }
+  ]);
+  
+
 
   return (
     <div className="h-screen w-screen font-worksans flex flex-col justify-between bg-purple-50 p-8 overflow-hidden">
@@ -471,9 +481,10 @@ const handleSubmitNewGoal = () => {
                       <FaSearch />
                     </button>
                   )}
-                  <button className="p-2 text-gray-400 mr-4">
-                    <FaBell />
-                  </button>
+                  <button className="p-2 text-gray-400 mr-4" onClick={() => setNotificationModalOpen(true)}>
+  <FaBell />
+</button>
+
                 </div>
               </div>
 
@@ -666,10 +677,10 @@ const handleSubmitNewGoal = () => {
                       </button>
                     </div>
                     
-                    {/* Edit goal form */}
-                    {isEditingGoal && (
-                      <div className="mb-4 p-4 border border-blue-200 bg-blue-50 rounded-lg">
-                        <h5 className="font-medium text-blue-700 mb-3">Edit Goal</h5>
+                                        {/* Edit goal form */}
+                                        {isEditingGoal && (
+                      <div className="mb-4 p-4 border border-purple-200 bg-purple-50 rounded-lg">
+                        <h5 className="font-medium text-purple-700 mb-3">Edit Goal</h5>
                         <input
                           type="text"
                           value={editGoalName}
@@ -687,7 +698,7 @@ const handleSubmitNewGoal = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={handleSaveEditedGoal}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex-1"
+                            className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 flex-1"
                           >
                             Save Changes
                           </button>
@@ -797,6 +808,12 @@ const handleSubmitNewGoal = () => {
             </div>
             </div>
       <footer className="text-center text-sm text-gray-500 mt-8">© 2025 WealthGuard. All rights reserved.</footer>
+      <NotificationModal
+  open={notificationModalOpen}
+  onClose={() => setNotificationModalOpen(false)}
+  notifications={notifications}
+/>
+
     </div>
   );
 };
