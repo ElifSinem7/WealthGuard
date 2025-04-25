@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script>
+      // Sayfa yüklendiğinde tema ayarlarını uygulayan script
+      (function() {
+        try {
+          // Tema tercihini al
+          var theme = localStorage.getItem('wealthguard-theme') || 'light';
+          var colorScheme = localStorage.getItem('wealthguard-colorScheme') || 'blue';
+          var textSize = localStorage.getItem('wealthguard-textSize') || '2';
+          
+          // Tema sınıflarını uygula
+          document.documentElement.classList.add('theme-' + theme);
+          document.documentElement.classList.add('color-' + colorScheme);
+          
+          // Metin boyutu sınıfını uygula
+          var sizeClass = textSize === '1' ? 'text-size-small' : 
+                          textSize === '2' ? 'text-size-medium' : 'text-size-large';
+          document.documentElement.classList.add(sizeClass);
+          
+          // Kutucuğu gizle (yaygın kullanılan CSS sınıflar)
+          var style = document.createElement('style');
+          style.type = 'text/css';
+          style.innerHTML = `
+            .toolbar-panel, .debug-panel, .editor-info, .debug-toolbar, 
+            .react-dev-tools, .dev-tools-panel, .react-debug-toolbar,
+            .dev-tools-container, .toolbar-container, .debug-element,
+            div[style*="position: fixed"][style*="bottom: 0"],
+            div[style*="z-index: 99999"] {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+            }
+          `;
+          document.head.appendChild(style);
+        } catch (e) {
+          console.error('Tema ayarlarını uygulanırken hata oluştu:', e);
+        }
+      })();
+    </script>
+    
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

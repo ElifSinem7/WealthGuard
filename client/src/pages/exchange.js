@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell, FaSync } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'; 
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 const WealthGuardExchange = () => {
+
+  useThemeAndLanguageInit();
+  
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Exchange");
   

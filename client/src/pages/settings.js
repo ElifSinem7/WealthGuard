@@ -1,10 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, 
-  FaSignOutAlt, FaSearch, FaBell, FaUser, FaLock, FaBrush, FaBell as FaBellIcon, 
-  FaGlobe, FaMoon, FaSun } from 'react-icons/fa';
+  FaSignOutAlt, FaSearch, FaBell, FaUser, FaLock, FaBrush, FaBell as FaBellIcon, FaMoon, FaSun } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from '../pages/language';
+import { useTheme } from '../pages/theme';
+import { useNotifications } from '../pages/notification';
+import { SettingsContext } from "../SettingsContext";
+
+
+const Toggle = ({ checked, onChange }) => {
+  return (
+    <div className="relative inline-block w-12 align-middle select-none" onClick={onChange}>
+      <input 
+        type="checkbox" 
+        checked={checked}
+        className="sr-only"
+      />
+    <div className="relative inline-block w-12 h-6">
+  <div className="block w-12 h-6 rounded-full bg-gray-400"></div>
+  <div className={`dot absolute top-1 bg-gray-100 w-4 h-4 rounded-full transition transform ${checked ? 'translate-x-6 left-1' : 'left-1'}`}></div>
+</div>
+</div>
+  );
+};
 
 const WealthGuardSettings = () => {
+  const { settings, setSettings } = useContext(SettingsContext);
+
+  const handleFontSize = (e) => {
+    const val = e.target.value + "px";
+    localStorage.setItem("fontSize", val);
+    setSettings(prev => ({ ...prev, fontSize: val }));
+  };
+
+  const handleThemeColor = (e) => {
+    const val = e.target.value;
+    localStorage.setItem("themeColor", val);
+    setSettings(prev => ({ ...prev, themeColor: val }));
+  };
+
+  const handleLanguage = (e) => {
+    const val = e.target.value;
+    localStorage.setItem("language", val);
+    setSettings(prev => ({ ...prev, language: val }));
+  };
+
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Settings");
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,9 +53,14 @@ const WealthGuardSettings = () => {
   const [nickname, setNickname] = useState("examp nickname");
   const [email, setEmail] = useState("example@email.com");
   const [activeTab, setActiveTab] = useState("profile");
-  const [theme, setTheme] = useState("light");
-  const [language, setLanguage] = useState("English");
-  const [notifications, setNotifications] = useState({
+  const [textSize, setTextSize] = useState(2); // Default medium size
+  
+  // Get contexts
+  const { language, changeLanguage, t } = useLanguage();
+  const { theme, changeTheme, colorScheme, changeColorScheme } = useTheme();
+  
+  // Handle notification settings locally if context has issues
+  const [localNotificationSettings, setLocalNotificationSettings] = useState({
     email: true,
     push: true,
     transactions: true,
@@ -23,38 +68,234 @@ const WealthGuardSettings = () => {
     security: true
   });
   
-  const searchInputRef = React.useRef(null);
+  // Try to use context notifications, fallback to local if needed
+  const { notificationSettings = localNotificationSettings, updateNotification } = useNotifications() || {};
+  
+  const searchInputRef = useRef(null);
 
-  // theme
-  const themes = [
+  // Theme modes
+  const themeModes = [
     { id: "light", name: "Light", icon: <FaSun className="mr-2" /> },
-    { id: "dark", name: "Dark", icon: <FaMoon className="mr-2" /> },
-    { id: "purple", name: "Purple", icon: <FaBrush className="mr-2" /> },
-    { id: "blue", name: "Blue", icon: <FaBrush className="mr-2" /> }
+    { id: "dark", name: "Dark", icon: <FaMoon className="mr-2" /> }
   ];
 
-  // language
+  // Color schemes
+  const colorSchemes = [
+    { id: "blue", name: "Blue", icon: <FaBrush className="mr-2" /> },
+    { id: "purple", name: "Purple", icon: <FaBrush className="mr-2" /> }
+  ];
+
+  // Available languages
   const languages = ["English", "Turkish"];
 
-  // theme effect 
-  useEffect(() => {
-    console.log(`Theme changed to: ${theme}`);
-    document.body.className = theme;
+  // Function to handle text size change
+  const handleTextSizeChange = (e) => {
+    const size = parseInt(e.target.value);
+    setTextSize(size);
     
-    if (theme === "dark") {
-      document.documentElement.style.setProperty('--bg-main', '#1a1a1a');
-      document.documentElement.style.setProperty('--text-main', '#ffffff');
-    } else if (theme === "purple") {
-      document.documentElement.style.setProperty('--bg-main', '#f5f3ff');
-      document.documentElement.style.setProperty('--text-main', '#4c1d95');
-    } else if (theme === "blue") {
-      document.documentElement.style.setProperty('--bg-main', '#eff6ff');
-      document.documentElement.style.setProperty('--text-main', '#1e40af');
-    } else {
-      document.documentElement.style.setProperty('--bg-main', '#ffffff');
-      document.documentElement.style.setProperty('--text-main', '#1f2937');
+    // Remove existing text size classes
+    document.documentElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+    
+    // Add new text size class
+    const sizeClass = size === 1 ? 'text-size-small' : size === 2 ? 'text-size-medium' : 'text-size-large';
+    document.documentElement.classList.add(sizeClass);
+    
+    // Save to localStorage
+    localStorage.setItem('wealthguard-textSize', size);
+    console.log('Text size changed to:', size);
+  };
+
+  // Load saved text size in useEffect
+  useEffect(() => {
+    const savedTextSize = localStorage.getItem('wealthguard-textSize');
+    if (savedTextSize) {
+      const parsedSize = parseInt(savedTextSize);
+      setTextSize(parsedSize);
+      
+      // Apply text size class
+      const sizeClass = parsedSize === 1 ? 'text-size-small' : parsedSize === 2 ? 'text-size-medium' : 'text-size-large';
+      document.documentElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+      document.documentElement.classList.add(sizeClass);
     }
-  }, [theme]);
+  }, []);
+
+  useEffect(() => {
+    const applyTheme = () => {
+      // Load user saved settings from localStorage if available
+      const savedTheme = localStorage.getItem('wealthguard-theme') || theme;
+      const savedColorScheme = localStorage.getItem('wealthguard-colorScheme') || colorScheme;
+      
+      if (savedTheme !== theme) {
+        changeTheme(savedTheme);
+      }
+      
+      if (savedColorScheme !== colorScheme) {
+        changeColorScheme(savedColorScheme);
+      }
+      
+      // Apply in a single operation to avoid flickering
+      document.documentElement.className = document.documentElement.className
+        .replace(/theme-\w+/g, '')
+        .replace(/color-\w+/g, '')
+        .trim() + ` theme-${theme} color-${colorScheme}`;
+      
+      // Apply theme colors
+      applyThemeColors();
+      
+      console.log(`Theme applied: ${theme}, Color scheme: ${colorScheme}`);
+    };
+    
+    // Debounce theme changes to prevent flickering
+    const timeoutId = setTimeout(applyTheme, 10);
+    return () => clearTimeout(timeoutId);
+  }, [theme, colorScheme]);
+  
+  // Function to apply theme colors based on current theme and color scheme
+  const applyThemeColors = () => {
+    // Theme color configurations
+    const themeColors = {
+      light: {
+        blue: {
+          accent: '#3B82F6', // blue
+          accentLight: '#EFF6FF',
+          bg: '#F9FAFB',
+          card: '#FFFFFF',
+          sidebar: '#FFFFFF',
+          text: '#1F2937',
+          textSecondary: '#6B7280',
+          border: '#E5E7EB'
+        },
+        purple: {
+          accent: '#8B5CF6', // purple
+          accentLight: '#EDE9FE',
+          bg: '#F9FAFB',
+          card: '#FFFFFF',
+          sidebar: '#FFFFFF',
+          text: '#1F2937',
+          textSecondary: '#6B7280',
+          border: '#E5E7EB'
+        }
+      },
+      dark: {
+        blue: {
+          accent: '#60A5FA', // blue
+          accentLight: '#1E3A8A',
+          bg: '#111827',
+          card: '#1F2937',
+          sidebar: '#0F172A',
+          text: '#F9FAFB',
+          textSecondary: '#D1D5DB',
+          border: '#374151'
+        },
+        purple: {
+          accent: '#A78BFA', // purple
+          accentLight: '#4C1D95',
+          bg: '#111827',
+          card: '#1F2937',
+          sidebar: '#0F172A',
+          text: '#F9FAFB',
+          textSecondary: '#D1D5DB',
+          border: '#374151'
+        }
+      }
+    };
+    
+    // Apply current theme colors to CSS variables
+    const root = document.documentElement;
+    const currentTheme = themeColors[theme][colorScheme];
+    
+    root.style.setProperty('--theme-accent', currentTheme.accent);
+    root.style.setProperty('--theme-accent-light', currentTheme.accentLight);
+    root.style.setProperty('--theme-bg', currentTheme.bg);
+    root.style.setProperty('--theme-card', currentTheme.card);
+    root.style.setProperty('--theme-sidebar', currentTheme.sidebar);
+    root.style.setProperty('--theme-text', currentTheme.text);
+    root.style.setProperty('--theme-text-secondary', currentTheme.textSecondary);
+    root.style.setProperty('--theme-border', currentTheme.border);
+    
+    // Add global style for theme classes and transitions
+    if (!document.getElementById('theme-styles')) {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'theme-styles';
+      styleEl.innerHTML = `
+        /* Add transitions to prevent flickering */
+        body, 
+        .bg-theme-bg,
+        .bg-card,
+        .bg-sidebar,
+        .text-theme,
+        .text-theme-secondary,
+        .border-theme {
+          transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .theme-accent-light { background-color: var(--theme-accent-light); }
+        .accent-bg { background-color: var(--theme-accent); }
+        .bg-theme-bg { background-color: var(--theme-bg); }
+        .bg-card { background-color: var(--theme-card); }
+        .bg-sidebar { background-color: var(--theme-sidebar); }
+        .text-theme-accent { color: var(--theme-accent); }
+        .text-theme { color: var(--theme-text); }
+        .text-theme-secondary { color: var(--theme-text-secondary); }
+        .border-theme-accent { border-color: var(--theme-accent); }
+        .border-theme { border-color: var(--theme-border); }
+        
+        /* Text size classes */
+        .text-size-small {
+          font-size: 0.85rem;
+        }
+        .text-size-medium {
+          font-size: 1rem;
+        }
+        .text-size-large {
+          font-size: 1.15rem;
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+  };
+  
+  // Save theme preferences to localStorage
+  useEffect(() => {
+    localStorage.setItem('wealthguard-theme', theme);
+    localStorage.setItem('wealthguard-colorScheme', colorScheme);
+  }, [theme, colorScheme]);
+  
+  // Save language preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('wealthguard-language', language);
+  }, [language]);
+  
+  // Load user profile from localStorage
+  useEffect(() => {
+    const savedUserProfile = localStorage.getItem('wealthguard-user');
+    if (savedUserProfile) {
+      const profile = JSON.parse(savedUserProfile);
+      setUsername(profile.username || username);
+      setNickname(profile.nickname || nickname);
+      setEmail(profile.email || email);
+    }
+  }, []);
+  
+  // Load notification settings from localStorage
+  useEffect(() => {
+    const savedNotificationSettings = localStorage.getItem('wealthguard-notifications');
+    if (savedNotificationSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedNotificationSettings);
+        setLocalNotificationSettings(parsedSettings);
+        
+        // If context's updateNotification exists, update the context too
+        if (typeof updateNotification === 'function') {
+          Object.keys(parsedSettings).forEach(key => {
+            updateNotification(key, parsedSettings[key]);
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing notification settings:', error);
+      }
+    }
+  }, []);
 
   const handleNavClick = (pageName) => {
     setActivePage(pageName);
@@ -83,22 +324,49 @@ const WealthGuardSettings = () => {
   };
 
   const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem('wealthguard-theme', newTheme);
+    console.log(`Changing theme from ${theme} to ${newTheme}`);
+    changeTheme(newTheme);
+  };
+  
+  const handleColorSchemeChange = (newColorScheme) => {
+    console.log(`Changing color scheme from ${colorScheme} to ${newColorScheme}`);
+    changeColorScheme(newColorScheme);
   };
 
   const handleNotificationChange = (type) => {
-    setNotifications({
-      ...notifications,
-      [type]: !notifications[type]
-    });
+    // Use context if available, otherwise update local state
+    if (typeof updateNotification === 'function') {
+      updateNotification(type, !notificationSettings[type]);
+    } else {
+      setLocalNotificationSettings(prev => ({
+        ...prev,
+        [type]: !prev[type]
+      }));
+    }
+    
+    // Always update localStorage for persistence
+    const currentSettings = typeof updateNotification === 'function' ? 
+      notificationSettings : localNotificationSettings;
+      
+    const updatedSettings = {
+      ...currentSettings,
+      [type]: !currentSettings[type]
+    };
+    
+    localStorage.setItem('wealthguard-notifications', JSON.stringify(updatedSettings));
+    console.log(`Notification setting updated: ${type} - ${!currentSettings[type]}`);
   };
 
   const handleLogout = () => {
+    // Clear any stored user session data
+    localStorage.removeItem('wealthguard-user');
     navigate('/');
   };
 
   const handleSaveProfile = () => {
+    // Save user profile data to localStorage
+    const userProfile = { username, nickname, email };
+    localStorage.setItem('wealthguard-user', JSON.stringify(userProfile));
     console.log("Saving profile...");
     alert("Profile information saved successfully!");
   };
@@ -109,99 +377,104 @@ const WealthGuardSettings = () => {
   };
 
   const handleChangeLanguage = (e) => {
-    setLanguage(e.target.value);
-    console.log(`Language changed to: ${e.target.value}`);
+    const newLanguage = e.target.value;
+    changeLanguage(newLanguage);
+    console.log(`Language changed to: ${newLanguage}`);
   };
 
+  // Determine which notification settings to use
+  const effectiveNotificationSettings = typeof updateNotification === 'function' ? 
+    notificationSettings : localNotificationSettings;
+
   return (
-    <div className="h-screen w-screen font-worksans flex flex-col justify-between bg-purple-50 p-8">
-      <div className="flex-1 flex justify-center items-center">
-        <div className="mx-auto h-[calc(100vh-100px)] flex bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl">
+    <div className="h-screen w-screen font-worksans flex flex-col justify-between bg-theme-bg">
+      <div className="flex-1 flex justify-center items-center p-4 md:p-8">
+        <div className="mx-auto h-[calc(100vh-100px)] flex bg-card rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl">
 
           {/*sidebar*/}
-          <div className="w-64 border-r border-gray-100 flex flex-col justify-between">
+          <div className="w-64 border-r border-theme flex flex-col justify-between bg-sidebar">
             <div>
-              <div className="p-6 border-b border-gray-100">
+              <div className="p-6 border-b border-theme">
                 <div className="flex items-center mb-2">
                   <div className="mr-2">
                     <img src="/logo.png" alt="Logo" className="w-16 h-16 object-cover" />
                   </div>
-                  <a href="maindashboard" className="text-2xl italic font-bold text-gray-900">WealthGuard</a>
+                  <a href="maindashboard" className="text-2xl italic font-bold text-theme">WealthGuard</a>
                 </div>
               </div>
 
-              {/*cokyoruldum*/}
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-xs uppercase text-gray-400 mb-2">MAIN</h3>
+              {/*navigation*/}
+              <div className="p-6 border-b border-theme">
+                <h3 className="text-xs uppercase text-theme-secondary mb-2">{t('main')}</h3>
                 <a href="maindashboard"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("Dashboard")}
                 >
                   <FaHome className="mr-3" />
-                  <span className="font-medium">Dashboard</span>
+                  <span className="font-medium">{t('dashboard')}</span>
                 </a>
                 <a href="recurringTransactionPage"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("Transactions")}
                 >
                   <FaClock className="mr-3" />
-                  <span>Transactions</span>
+                  <span>{t('transactions')}</span>
                 </a>
                 <a href="payments"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("Payments")}
                 >
                   <FaCreditCard className="mr-3" />
-                  <span>Payments</span>
+                  <span>{t('payments')}</span>
                 </a>
                 <a href="exchange"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("Exchange")}
                 >
                   <FaExchangeAlt className="mr-3" />
-                  <span>Exchange</span>
+                  <span>{t('exchange')}</span>
                 </a>
               </div>
 
               <div className="p-6">
-                <h3 className="text-xs uppercase text-gray-400 mb-4">OTHERS</h3>
+                <h3 className="text-xs uppercase text-theme-secondary mb-4">{t('others')}</h3>
                 <a href="settings"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("Settings")}
                 >
                   <FaCog className="mr-3" />
-                  <span>Settings</span>
+                  <span>{t('settings')}</span>
                 </a>
                 <a href="faq"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "faq" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "faq" ? 'theme-accent-light text-theme-accent' : 'text-theme hover:bg-theme-accent-light hover:bg-opacity-10'}`}
                   onClick={() => handleNavClick("faq")}
                 >
                   <FaQuestionCircle className="mr-3" />
-                  <span>Support</span>
+                  <span>{t('support')}</span>
                 </a>
               </div>
             </div>
 
             {/*logout*/}
-            <div className="p-6 border-t border-gray-100 mt-auto">
+            <div className="p-6 border-t border-theme mt-auto">
               <button
                 onClick={handleLogout}
-                className="flex items-center w-full p-3 text-purple-600 hover:bg-red-50 rounded-lg"
+                className="flex items-center w-full p-3 text-theme-accent hover:bg-red-50 rounded-lg"
               >
                 <FaSignOutAlt className="mr-3" />
-                <span>Logout</span>
+                <span>{t('logout')}</span>
               </button>
             </div>
           </div>
 
           {/* main*/}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-6 overflow-y-auto bg-theme-bg">
             {/* header*/}
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center">
                 <div>
-                  <h2 className="font-medium text-gray-800">{username}</h2>
-                  <span className="text-sm text-gray-500">{nickname}</span>
+                  <h2 className="font-medium text-theme">{username}</h2>
+                  <span className="text-sm text-theme-secondary">{nickname}</span>
                 </div>
               </div>
               <div className="flex items-center">
@@ -212,249 +485,250 @@ const WealthGuardSettings = () => {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 pr-10 text-sm"
-                      placeholder="Search..."
+                      className="bg-card border border-theme rounded-md px-4 py-2 pr-10 text-sm text-theme"
+                      placeholder={t('search')}
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
                     <FaSearch
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-theme-secondary cursor-pointer"
                       onClick={handleSearch}
                     />
                   </div>
                 ) : (
-                  <button className="p-2 text-gray-400 mr-2" onClick={handleSearch}>
+                  <button className="p-2 text-theme-secondary mr-2" onClick={handleSearch}>
                     <FaSearch />
                   </button>
                 )}
-                <button className="p-2 text-gray-400 mr-4">
+                <button className="p-2 text-theme-secondary mr-4">
                   <FaBell />
                 </button>
               </div>
             </div>
 
-            {/* ayarlar*/}
-            <div className="p-6 bg-white border border-gray-100 rounded-lg shadow-sm mb-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-6">Settings</h2>
+            {/* settings container */}
+            <div className="p-6 bg-card border border-theme rounded-lg shadow-sm mb-6">
+              <h2 className="text-xl font-bold text-theme mb-6">{t('settings')}</h2>
               
-              {/* tabs ayarlar*/}
-              <div className="flex border-b border-gray-200 mb-6">
+              {/* tabs */}
+              <div className="flex border-b border-theme mb-6">
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'profile' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'profile' ? 'text-theme-accent border-b-2 border-theme-accent' : 'text-theme-secondary hover:text-theme'}`}
                   onClick={() => handleTabClick('profile')}
                 >
-                  <FaUser className="inline mr-2" /> Profile
+                  <FaUser className="inline mr-2" /> {t('profile')}
                 </button>
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'security' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'security' ? 'text-theme-accent border-b-2 border-theme-accent' : 'text-theme-secondary hover:text-theme'}`}
                   onClick={() => handleTabClick('security')}
                 >
-                  <FaLock className="inline mr-2" /> Security
+                  <FaLock className="inline mr-2" /> {t('security')}
                 </button>
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'appearance' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'appearance' ? 'text-theme-accent border-b-2 border-theme-accent' : 'text-theme-secondary hover:text-theme'}`}
                   onClick={() => handleTabClick('appearance')}
                 >
-                  <FaBrush className="inline mr-2" /> Appearance
+                  <FaBrush className="inline mr-2" /> {t('appearance')}
                 </button>
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'notifications' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'notifications' ? 'text-theme-accent border-b-2 border-theme-accent' : 'text-theme-secondary hover:text-theme'}`}
                   onClick={() => handleTabClick('notifications')}
                 >
-                  <FaBellIcon className="inline mr-2" /> Notifications
+                  <FaBellIcon className="inline mr-2" /> {t('notifications')}
                 </button>
               </div>
 
-              {/* profile settings*/}
+              {/* profile settings */}
               {activeTab === 'profile' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                      <label className="block text-sm font-medium text-theme mb-1">{t('fullName')}</label>
                       <input 
                         type="text" 
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-theme rounded-md bg-card text-theme"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                      <label className="block text-sm font-medium text-theme mb-1">{t('displayName')}</label>
                       <input 
                         type="text" 
                         value={nickname}
                         onChange={(e) => setNickname(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-theme rounded-md bg-card text-theme"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                      <label className="block text-sm font-medium text-theme mb-1">{t('email')}</label>
                       <input 
                         type="email" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className="w-full p-2 border border-theme rounded-md bg-card text-theme"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                    <label className="block text-sm font-medium text-theme mb-1">{t('language')}</label>
                     <div className="relative">
                       <select
                         value={language}
                         onChange={handleChangeLanguage}
-                        className="w-full p-2 border border-gray-300 rounded-md appearance-none"
+                        className="w-full p-2 border border-theme rounded-md appearance-none bg-card text-theme"
                       >
                         {languages.map((lang) => (
                           <option key={lang} value={lang}>{lang}</option>
                         ))}
                       </select>
-                      <FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <FaChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-theme-secondary pointer-events-none" />
                     </div>
                   </div>
                   <div className="pt-4">
                     <button 
                       onClick={handleSaveProfile}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                      className="px-4 py-2 accent-bg text-white rounded-md hover:bg-opacity-90"
                     >
-                      Save Changes
+                      {t('saveChanges')}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/*securittyyyy */}
+              {/* security settings */}
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Password</h3>
+                    <h3 className="text-lg font-medium text-theme mb-4">{t('password')}</h3>
                     <button 
                       onClick={handleResetPassword}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                      className="px-4 py-2 accent-bg text-white rounded-md hover:bg-opacity-90"
                     >
-                      Reset Password
+                      {t('resetPassword')}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/*apperance*/}
+              {/* appearance settings */}
               {activeTab === 'appearance' && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Theme</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {themes.map((themeOption) => (
+                    <h3 className="text-lg font-medium text-theme mb-4">{t('theme')}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {themeModes.map((themeMode) => (
                         <div 
-                          key={themeOption.id}
-                          onClick={() => handleThemeChange(themeOption.id)}
+                          key={themeMode.id}
+                          onClick={() => handleThemeChange(themeMode.id)}
                           className={`p-4 border rounded-lg cursor-pointer flex items-center ${
-                            theme === themeOption.id ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:bg-gray-50'
+                            theme === themeMode.id ? 'border-theme-accent bg-theme-accent-light bg-opacity-20' : 'border-theme hover:bg-theme-accent-light hover:bg-opacity-10'
                           }`}
                         >
-                          {themeOption.icon}
-                          <span>{themeOption.name}</span>
-                          {theme === themeOption.id && (
-                            <span className="ml-auto w-4 h-4 bg-purple-500 rounded-full"></span>
+                          {themeMode.icon}
+                          <span className="text-theme">{t(themeMode.name.toLowerCase())}</span>
+                          {theme === themeMode.id && (
+                            <span className="ml-auto w-4 h-4 bg-theme-accent rounded-full"></span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {colorSchemes.map((scheme) => (
+                        <div 
+                          key={scheme.id}
+                          onClick={() => handleColorSchemeChange(scheme.id)}
+                          className={`p-4 border rounded-lg cursor-pointer flex items-center ${
+                            colorScheme === scheme.id ? 'border-theme-accent bg-theme-accent-light bg-opacity-20' : 'border-theme hover:bg-theme-accent-light hover:bg-opacity-10'
+                          }`}
+                        >
+                          {scheme.icon}
+                          <span className="text-theme">{t(scheme.name.toLowerCase())}</span>
+                          {colorScheme === scheme.id && (
+                            <span className="ml-auto w-4 h-4 bg-theme-accent rounded-full"></span>
                           )}
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Text Size</h3>
+                    <h3 className="text-lg font-medium text-theme mb-4">{t('textSize')}</h3>
                     <div className="w-full flex items-center">
-                      <span className="text-sm mr-3">A</span>
+                      <span className="text-sm mr-3 text-theme">A</span>
                       <input 
                         type="range" 
                         min="1" 
                         max="3" 
-                        defaultValue="2"
+                        value={textSize}
+                        onChange={handleTextSizeChange}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       />
-                      <span className="text-lg ml-3">A</span>
+                      <span className="text-lg ml-3 text-theme">A</span>
                     </div>
                   </div>
-                  <div>
-                </div>
                 </div>
               )}
 
-              {/*notification */}
+              {/* notification settings */}
               {activeTab === 'notifications' && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Notification Preferences</h3>
+                    <h3 className="text-lg font-medium text-theme mb-4">{t('notificationPreferences')}</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Email Notifications</p>
-                          <p className="text-sm text-gray-500">Receive notifications via email</p>
+                          <p className="font-medium text-theme">{t('emailNotifications')}</p>
+                          <p className="text-sm text-theme-secondary">{t('emailNotificationsDesc')}</p>
                         </div>
-                        <div className="relative inline-block w-12 align-middle select-none">
-                          <input 
-                            type="checkbox" 
-                            checked={notifications.email}
-                            onChange={() => handleNotificationChange('email')}
-                            className="sr-only"
-                          />
-                          <div className={`block w-12 h-6 rounded-full ${notifications.email ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-                          <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${notifications.email ? 'translate-x-6' : ''}`}></div>
-                        </div>
+                        <Toggle 
+                          checked={notificationSettings.email}
+                          onChange={() => handleNotificationChange('email')}
+                        />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Push Notifications</p>
-                          <p className="text-sm text-gray-500">Receive notifications on your device</p>
+                          <p className="font-medium text-theme">{t('pushNotifications')}</p>
+                          <p className="text-sm text-theme-secondary">{t('pushNotificationsDesc')}</p>
                         </div>
-                        <div className="relative inline-block w-12 align-middle select-none">
-                          <input 
-                            type="checkbox" 
-                            checked={notifications.push}
-                            onChange={() => handleNotificationChange('push')}
-                            className="sr-only"
-                          />
-                          <div className={`block w-12 h-6 rounded-full ${notifications.push ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-                          <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${notifications.push ? 'translate-x-6' : ''}`}></div>
-                        </div>
+                        <Toggle 
+                          checked={notificationSettings.push}
+                          onChange={() => handleNotificationChange('push')}
+                        />
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Notification Types</h3>
+                    <h3 className="text-lg font-medium text-theme mb-4">{t('notificationTypes')}</h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Transaction Alerts</p>
-                          <p className="text-sm text-gray-500">Get notified about new transactions</p>
+                          <p className="font-medium text-theme">{t('transactionAlerts')}</p>
+                          <p className="text-sm text-theme-secondary">{t('transactionAlertsDesc')}</p>
                         </div>
-                        <div className="relative inline-block w-12 align-middle select-none">
-                          <input 
-                            type="checkbox" 
-                            checked={notifications.transactions}
-                            onChange={() => handleNotificationChange('transactions')}
-                            className="sr-only"
-                          />
-                          <div className={`block w-12 h-6 rounded-full ${notifications.transactions ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-                          <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${notifications.transactions ? 'translate-x-6' : ''}`}></div>
-                        </div>
+                        <Toggle 
+                          checked={notificationSettings.transactions}
+                          onChange={() => handleNotificationChange('transactions')}
+                        />
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Marketing Communications</p>
-                          <p className="text-sm text-gray-500">Receive updates about new features and offers</p>
+                          <p className="font-medium text-theme">{t('marketingComm')}</p>
+                          <p className="text-sm text-theme-secondary">{t('marketingCommDesc')}</p>
                         </div>
-                        <div className="relative inline-block w-12 align-middle select-none">
-                          <input 
-                            type="checkbox" 
-                            checked={notifications.marketing}
-                            onChange={() => handleNotificationChange('marketing')}
-                            className="sr-only"
-                          />
-                          <div className={`block w-12 h-6 rounded-full ${notifications.marketing ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-                          <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition transform ${notifications.marketing ? 'translate-x-6' : ''}`}></div>
-                        </div>
+                        <Toggle 
+                          checked={notificationSettings.marketing}
+                          onChange={() => handleNotificationChange('marketing')}
+                        />
                       </div>
                       <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-theme">{t('securityAlerts')}</p>
+                          <p className="text-sm text-theme-secondary">{t('securityAlertsDesc')}</p>
+                        </div>
+                        <Toggle 
+                          checked={notificationSettings.security}
+                          onChange={() => handleNotificationChange('security')}
+                        />
                       </div>
                     </div>
                   </div>
@@ -464,7 +738,7 @@ const WealthGuardSettings = () => {
           </div>
         </div>
       </div>
-      <footer className="text-center text-sm text-gray-500 mt-8">© 2025 WealthGuard. All rights reserved.</footer>
+      <footer className="text-center text-sm text-theme-secondary p-4">© 2025 WealthGuard. All rights reserved.</footer>
     </div>
   );
 };

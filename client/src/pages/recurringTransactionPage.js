@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell, FaPlus } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import AddTransactionModal from './AddTransactionModal';
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 const WealthGuardTransactions = () => {
+
+  useThemeAndLanguageInit();
+  
   const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);

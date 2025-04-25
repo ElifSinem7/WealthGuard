@@ -13,6 +13,18 @@
   }
 }
 
+:root {
+  --theme-color: #2196f3;
+}
+
+body {
+  color: var(--theme-color); /* yazı rengini uygular */
+}
+
+.navbar, header {
+  background-color: var(--theme-color); /* örnek kullanım */
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -26,6 +38,16 @@
 
 .App-link {
   color: #61dafb;
+}
+
+:root {
+  --font-size: 16px;
+  --theme-color: #2196f3;
+}
+
+body {
+  font-size: var(--font-size);
+  color: var(--theme-color);
 }
 
 @keyframes App-logo-spin {

@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell, FaPlus, FaTrash, FaCalendarAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import PaMod from '../pages/paymod'
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 const WealthGuardPayments = () => {
+
+  useThemeAndLanguageInit();
+  
   const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);

@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell} from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 const SupportPage = () => {
+
+  useThemeAndLanguageInit();
+
+  
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Support");
   const [activeTab, setActiveTab] = useState("contact");

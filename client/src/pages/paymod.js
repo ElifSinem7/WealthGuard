@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { FaTimes, FaCalendarAlt, FaDollarSign, FaTag } from 'react-icons/fa';
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 const PaMod = ({ isOpen, onClose, onSave }) => {
+
+  useThemeAndLanguageInit();
+  
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Utility');
   const [amount, setAmount] = useState('');

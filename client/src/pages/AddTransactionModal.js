@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaTimes, FaCalendarAlt } from 'react-icons/fa';
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
+
 
 const AddTransactionModal = ({ isOpen, onClose, onSave }) => {
+
+  useThemeAndLanguageInit();
+  
   const [formData, setFormData] = useState({
     name: '',
     amount: '',

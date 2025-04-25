@@ -3,6 +3,7 @@ import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQ
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useNavigate } from "react-router-dom";
 import NotificationModal from '../components/ui/NotificationModal';
+import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
 
 //mock data
 const mockTransactions = [
@@ -19,6 +20,9 @@ const mockTransactions = [
 
 //components
 const WealthGuardDashboard = () => {
+
+  useThemeAndLanguageInit();
+  
   const navigate = useNavigate();
   const [goals, setGoals] = useState(["First home", "New car", "Vacation"]);
   const [selectedGoal, setSelectedGoal] = useState(goals[0]);

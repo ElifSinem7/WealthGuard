@@ -9,5 +9,67 @@ html, body, #root {
   height: 100vh;
   margin: 0;
   padding: 0;
-  
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* Tema + Renk Kombinasyonları */
+body.theme-light-blue,
+#root.theme-light-blue {
+  background-color: #f0f8ff;
+  color: #000;
+}
+
+
+body.theme-light-purple
+#root.theme-light-purple {
+  background-color: #f8f0ff;
+  color: #000;
+}
+
+body.theme-dark-blue
+#root.theme-dark-blue {
+  background-color: #001f3f;
+  color: #fff;
+}
+
+body.theme-dark-purple
+#root.theme-dark-purple {
+  background-color: #2e003e;
+  color: #fff;
+}
+
+/* Yazı boyutları */
+body.font-small
+#root.font-small {
+  font-size: 14px;
+}
+
+body.font-medium 
+#root.font-medium{
+  font-size: 16px;
+}
+
+body.font-large
+#root.font-large {
+  font-size: 18px;
+}
+
+button {
+  font-family: inherit;
+  padding: 8px 12px;
+  border-radius: 5px;
+}
+
+:root {
+  --theme-color: #8B5CF6; /* fallback renk */
+}
+
+.theme-bg {
+  background-color: var(--theme-color) !important;
+}
+.theme-text {
+  color: var(--theme-color) !important;
+}
+.theme-border {
+  border-color: var(--theme-color) !important;
 }
