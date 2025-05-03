@@ -36,7 +36,7 @@ export default function SignUp() {
       if (response.status === 201) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        navigate("/signin");
+        navigate("/maindashboard"); // Başarılı kayıt sonrası yönlendirme
       }
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred. Please try again.");
