@@ -1,209 +1,208 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaTimes, FaCalendarAlt } from 'react-icons/fa';
-import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
-
+import React, { useState, useEffect, useRef } from "react";
+import { FaTimes, FaCalendarAlt } from "react-icons/fa";
+import { useThemeLanguage } from "./ThemeLanguageContext";
 
 const AddTransactionModal = ({ isOpen, onClose, onSave }) => {
-
-  useThemeAndLanguageInit();
-  
   const [formData, setFormData] = useState({
-    name: '',
-    amount: '',
-    type: 'expense',
-    category: '',
+    name: "",
+    amount: "",
+    type: "expense",
+    category: "",
     date: new Date(),
-    note: '',
+    note: "",
   });
-  
+
   const [errors, setErrors] = useState({});
   const modalRef = useRef(null);
   
+  // Get theme context
+  const { theme, colorTheme } = useThemeLanguage();
+
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        name: '',
-        amount: '',
-        type: 'expense',
-        category: '',
+        name: "",
+        amount: "",
+        type: "expense",
+        category: "",
         date: new Date(),
-        note: '',
+        note: "",
       });
       setErrors({});
     }
   }, [isOpen]);
-  
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
     };
-    
+
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
-  
-  // kategori
+
   const categories = {
-    expense: ['Food', 'Transport', 'Shopping', 'Entertainment', 'Utilities', 'Health', 'Education', 'Housing', 'Other'],
-    income: ['Salary', 'Freelance', 'Investment', 'Gift', 'Rental', 'Other']
+    expense: [
+      "Food",
+      "Transport",
+      "Shopping",
+      "Entertainment",
+      "Utilities",
+      "Health",
+      "Education",
+      "Housing",
+      "Other",
+    ],
+    income: ["Salary", "Freelance", "Investment", "Gift", "Rental", "Other"],
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData, 
-      [name]: value
-    });
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleTypeChange = (e) => {
-    const newType = e.target.value;
-    setFormData({
-      ...formData,
-      type: newType,
-      category: ''
-    });
+    setFormData((prev) => ({
+      ...prev,
+      type: e.target.value,
+      category: "",
+    }));
   };
 
   const handleDateChange = (e) => {
-    setFormData({
-      ...formData,
-      date: new Date(e.target.value)
-    });
+    setFormData((prev) => ({
+      ...prev,
+      date: new Date(e.target.value),
+    }));
   };
 
   const validate = () => {
     const newErrors = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Transaction name is required';
-    }
-    
-    if (!formData.amount || isNaN(formData.amount) || Number(formData.amount) <= 0) {
-      newErrors.amount = 'Please enter a valid amount';
-    }
-    
-    if (!formData.category) {
-      newErrors.category = 'Please select a category';
-    }
-    
+    if (!formData.name.trim()) newErrors.name = "Transaction name is required";
+    if (!formData.amount || isNaN(formData.amount) || Number(formData.amount) <= 0)
+      newErrors.amount = "Please enter a valid amount";
+    if (!formData.category) newErrors.category = "Please select a category";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!validate()) {
-      return;
-    }
-    
+    if (!validate()) return;
+
     const newTransaction = {
-      id: Date.now(), 
+      id: Date.now(),
       name: formData.name,
       category: formData.category,
-      amount: formData.type === 'expense' ? -Math.abs(Number(formData.amount)) : Math.abs(Number(formData.amount)),
-      date: formData.date.toISOString().split('T')[0],
+      amount:
+        formData.type === "expense"
+          ? -Math.abs(Number(formData.amount))
+          : Math.abs(Number(formData.amount)),
+      date: formData.date.toISOString().split("T")[0],
       type: formData.type,
       note: formData.note,
-      icon: formData.category.toLowerCase() 
+      icon: formData.category.toLowerCase(),
     };
-    
+
     onSave(newTransaction);
     onClose();
   };
 
+  // Method to get the appropriate color class based on current theme
+  const getThemeClass = (purpleClass, blueClass) => {
+    return colorTheme === 'blue' ? blueClass : purpleClass;
+  };
+
+  // Dynamic classes based on theme
+  const bgMainClass = theme === "dark" ? "bg-gray-900" : "bg-purple-50";
+  const bgCardClass = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textMainClass = theme === "dark" ? "text-white" : "text-gray-800";
+  const textSecondaryClass = theme === "dark" ? "text-gray-300" : "text-gray-500";
+  const borderClass = theme === "dark" ? "border-gray-700" : "border-gray-100";
+  const inputBgClass = theme === "dark" ? "bg-gray-700" : "bg-gray-50";
+  const inputBorderClass = theme === "dark" ? "border-gray-600" : "border-gray-200";
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div 
-        ref={modalRef}
-        className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in"
-      >
-        {/* header*/}
-        <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="font-bold text-lg text-gray-800">Add Transaction</h2>
-          <button 
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100"
-          >
-            <FaTimes className="text-gray-600" />
+    <div className={`fixed inset-0 ${theme === "dark" ? "bg-black/70" : "bg-black/50"} flex items-center justify-center z-50 p-4`}>
+      <div ref={modalRef} className={`${bgCardClass} rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-fade-in`}>
+        <div className={`p-5 border-b ${borderClass} flex justify-between items-center`}>
+          <h2 className={`font-bold text-lg ${textMainClass}`}>Add Transaction</h2>
+          <button onClick={onClose} className={`p-1 rounded-full hover:${theme === "dark" ? "bg-gray-700" : "bg-gray-100"}`}>
+            <FaTimes className={textSecondaryClass} />
           </button>
         </div>
-        
-        {/* form */}
+
         <div className="p-5 max-h-[70vh] overflow-y-auto">
           <form onSubmit={handleSubmit}>
-            {/* transaction type */}
+            {/* Transaction Type */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>
                 Transaction Type
               </label>
               <div className="grid grid-cols-2 gap-3">
-                <label className={`flex items-center justify-center p-3 rounded-lg border cursor-pointer ${formData.type === 'expense' ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" 
-                    name="type" 
-                    value="expense" 
-                    checked={formData.type === 'expense'} 
-                    onChange={handleTypeChange}
-                    className="sr-only"
-                  />
-                  <span>Expense</span>
-                </label>
-                <label className={`flex items-center justify-center p-3 rounded-lg border cursor-pointer ${formData.type === 'income' ? 'bg-green-50 border-green-300 text-green-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-                  <input 
-                    type="radio" 
-                    name="type" 
-                    value="income" 
-                    checked={formData.type === 'income'} 
-                    onChange={handleTypeChange}
-                    className="sr-only"
-                  />
-                  <span>Income</span>
-                </label>
+                {["expense", "income"].map((type) => (
+                  <label
+                    key={type}
+                    className={`flex items-center justify-center p-3 rounded-lg border cursor-pointer ${
+                      formData.type === type
+                        ? type === "expense"
+                          ? theme === "dark" ? "bg-red-900 border-red-700 text-red-300" : "bg-red-50 border-red-300 text-red-600"
+                          : theme === "dark" ? "bg-green-900 border-green-700 text-green-300" : "bg-green-50 border-green-300 text-green-600"
+                        : `${inputBorderClass} ${textSecondaryClass} ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50"}`
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="type"
+                      value={type}
+                      checked={formData.type === type}
+                      onChange={handleTypeChange}
+                      className="sr-only"
+                    />
+                    <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                  </label>
+                ))}
               </div>
             </div>
-            
-            {/*name*/}
+
+            {/* Name */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>
                 Transaction Name
               </label>
-              <input 
+              <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g. Grocery Shopping, Salary"
-                className={`w-full p-3 border rounded-lg ${errors.name ? 'border-red-300' : 'border-gray-200'}`}
+                className={`w-full p-3 border rounded-lg ${inputBgClass} ${
+                  errors.name ? "border-red-300" : inputBorderClass
+                } ${textMainClass}`}
               />
               {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
             </div>
-            
-            {/* amount */}
+
+            {/* Amount */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount
-              </label>
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>Amount</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <input 
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${textSecondaryClass}`}>$</span>
+                <input
                   type="number"
                   name="amount"
                   value={formData.amount}
@@ -211,74 +210,74 @@ const AddTransactionModal = ({ isOpen, onClose, onSave }) => {
                   placeholder="0.00"
                   step="0.01"
                   min="0"
-                  className={`w-full p-3 pl-8 border rounded-lg ${errors.amount ? 'border-red-300' : 'border-gray-200'}`}
+                  className={`w-full p-3 pl-8 border rounded-lg ${inputBgClass} ${
+                    errors.amount ? "border-red-300" : inputBorderClass
+                  } ${textMainClass}`}
                 />
               </div>
               {errors.amount && <p className="mt-1 text-sm text-red-500">{errors.amount}</p>}
             </div>
-            
-            {/*kategori*/}
+
+            {/* Category */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>Category</label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className={`w-full p-3 border rounded-lg appearance-none bg-white ${errors.category ? 'border-red-300' : 'border-gray-200'}`}
+                className={`w-full p-3 border rounded-lg ${inputBgClass} ${
+                  errors.category ? "border-red-300" : inputBorderClass
+                } ${textMainClass}`}
               >
                 <option value="">Select a category</option>
                 {categories[formData.type].map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
                 ))}
               </select>
               {errors.category && <p className="mt-1 text-sm text-red-500">{errors.category}</p>}
             </div>
-            
-            {/* date */}
+
+            {/* Date */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date
-              </label>
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>Date</label>
               <div className="relative">
-                <input 
+                <input
                   type="date"
                   name="date"
-                  value={formData.date.toISOString().split('T')[0]}
+                  value={formData.date.toISOString().split("T")[0]}
                   onChange={handleDateChange}
-                  className="w-full p-3 border border-gray-200 rounded-lg"
+                  className={`w-full p-3 border ${inputBorderClass} rounded-lg ${inputBgClass} ${textMainClass}`}
                 />
-                <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaCalendarAlt className={`absolute right-3 top-1/2 -translate-y-1/2 ${textSecondaryClass}`} />
               </div>
             </div>
-            
-            {/* note */}
+
+            {/* Note */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Note (Optional)
-              </label>
-              <textarea 
+              <label className={`block text-sm font-medium ${textMainClass} mb-2`}>Note (Optional)</label>
+              <textarea
                 name="note"
                 value={formData.note}
                 onChange={handleChange}
                 placeholder="Add additional details..."
                 rows="3"
-                className="w-full p-3 border border-gray-200 rounded-lg resize-none"
+                className={`w-full p-3 border ${inputBorderClass} rounded-lg resize-none ${inputBgClass} ${textMainClass}`}
               ></textarea>
             </div>
-            
+
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 px-4 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+                className={`flex-1 py-3 px-4 border ${inputBorderClass} ${textMainClass} rounded-lg ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 px-4 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                className={`flex-1 py-3 px-4 ${getThemeClass('bg-purple-500 hover:bg-purple-600', 'bg-blue-500 hover:bg-blue-600')} text-white rounded-lg`}
               >
                 Save Transaction
               </button>

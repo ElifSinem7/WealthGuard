@@ -1,42 +1,35 @@
-import React, { useState } from 'react';
-import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell} from 'react-icons/fa';
+import React, { useState } from "react";
+import {
+  FaHome,
+  FaChevronDown,
+  FaClock,
+  FaCreditCard,
+  FaExchangeAlt,
+  FaCog,
+  FaQuestionCircle,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
+import { useThemeLanguage } from "./ThemeLanguageContext";
 
 const SupportPage = () => {
-
-  useThemeAndLanguageInit();
-
-  
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Support");
   const [activeTab, setActiveTab] = useState("contact");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchInput, setShowSearchInput] = useState(false);
-  const searchInputRef = React.useRef(null);
+  const username = "examp name";
+  const nickname = "examp nickname";
   
-  const [username] = useState("examp name");
-  const [nickname] = useState("examp nickname");
+  // Get theme context
+  const { theme, colorTheme } = useThemeLanguage();
 
   const handleNavClick = (pageName) => {
     setActivePage(pageName);
     console.log(`Navigating to ${pageName}`);
-  };
-
-  const handleSearch = () => {
-    if (showSearchInput) {
-      console.log("Searching for:", searchQuery);
-      alert(`Searching for: ${searchQuery}`);
-      setShowSearchInput(false);
-      setSearchQuery("");
-    } else {
-      setShowSearchInput(true);
-      setTimeout(() => {
-        searchInputRef.current && searchInputRef.current.focus();
-      }, 100);
+    if (pageName !== "Support") {
+      navigate(`/${pageName.toLowerCase()}`);
     }
   };
 
@@ -46,89 +39,109 @@ const SupportPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Support Request:", { email, subject, message });
     alert("Your support request has been submitted.");
     setEmail("");
     setSubject("");
     setMessage("");
   };
 
+  // Method to get the appropriate color class based on current theme
+  const getThemeClass = (purpleClass, blueClass) => {
+    return colorTheme === 'blue' ? blueClass : purpleClass;
+  };
+
+  // Dynamic classes based on theme
+  const bgMainClass = theme === "dark" ? "bg-gray-900" : "bg-purple-50";
+  const bgCardClass = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textMainClass = theme === "dark" ? "text-white" : "text-gray-800";
+  const textSecondaryClass = theme === "dark" ? "text-gray-300" : "text-gray-500";
+  const borderClass = theme === "dark" ? "border-gray-700" : "border-gray-100";
+  const inputBgClass = theme === "dark" ? "bg-gray-700" : "bg-gray-50";
+  const inputBorderClass = theme === "dark" ? "border-gray-600" : "border-gray-200";
+  const hoverBgClass = theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const detailsBgClass = theme === "dark" ? "bg-gray-800" : "bg-gray-50";
+  const detailsHoverClass = theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100";
+
   const faqs = [
     {
       question: "How do I add a new savings goal?",
-      answer: "You can add a new savings goal by clicking the '+' button in the Savings section of your dashboard, then enter the name of your goal when prompted."
+      answer:
+        "You can add a new savings goal by clicking the '+' button in the Savings section of your dashboard, then enter the name of your goal when prompted.",
     },
     {
       question: "How do I set up recurring payments?",
-      answer: "To set up recurring payments, navigate to the Payments section from the sidebar menu, then click on 'Add Payment' and follow the instructions."
+      answer:
+        "To set up recurring payments, navigate to the Payments section from the sidebar menu, then click on 'Add Payment' and follow the instructions.",
     },
     {
       question: "How do I change my account settings?",
-      answer: "To change your account settings, click on the 'Settings' option in the sidebar menu. From there, you can update your profile, notification preferences, and website settings."
+      answer:
+        "To change your account settings, click on the 'Settings' option in the sidebar menu. From there, you can update your profile, notification preferences, and website settings.",
     },
   ];
 
   return (
-    <div className="h-screen w-screen font-worksans flex flex-col justify-between bg-purple-50 p-8">
+    <div className={`h-screen w-screen font-worksans flex flex-col justify-between ${bgMainClass} p-8`}>
       <div className="flex-1 flex justify-center items-center">
-        <div className="mx-auto h-[calc(100vh-100px)] flex bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl">
-
-          {/* sidebar */}
-          <div className="w-64 border-r border-gray-100 flex flex-col justify-between">
+        <div className={`mx-auto h-[calc(100vh-100px)] flex ${bgCardClass} rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl`}>
+          {/* Sidebar */}
+          <div className={`w-64 border-r ${borderClass} flex flex-col justify-between`}>
             <div>
-              <div className="p-6 border-b border-gray-100">
+              <div className={`p-6 border-b ${borderClass}`}>
                 <div className="flex items-center mb-2">
                   <div className="mr-2">
                     <img src="/logo.png" alt="Logo" className="w-16 h-16 object-cover" />
                   </div>
-                  <a href="maindashboard" className="text-2xl italic font-bold text-gray-900">WealthGuard</a>
+                  <a href="maindashboard" className={`text-2xl italic font-bold ${textMainClass}`}>
+                    WealthGuard
+                  </a>
                 </div>
               </div>
 
-              {/* main */}
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-xs uppercase text-gray-400 mb-2">MAIN</h3>
+              {/* Navigation menu */}
+              <div className={`p-6 border-b ${borderClass}`}>
+                <h3 className={`text-xs uppercase ${textSecondaryClass} mb-2`}>MAIN</h3>
                 <a href="maindashboard"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Dashboard")}
                 >
                   <FaHome className="mr-3" />
                   <span className="font-medium">Dashboard</span>
                 </a>
                 <a href="recurringTransactionPage"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Transactions")}
                 >
                   <FaClock className="mr-3" />
                   <span>Transactions</span>
                 </a>
-                <a href="payments"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                <a href="payments" 
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Payments")}
                 >
                   <FaCreditCard className="mr-3" />
                   <span>Payments</span>
                 </a>
                 <a href="exchange"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Exchange")}
                 >
                   <FaExchangeAlt className="mr-3" />
                   <span>Exchange</span>
                 </a>
               </div>
-
+            
               <div className="p-6">
-                <h3 className="text-xs uppercase text-gray-400 mb-4">OTHERS</h3>
+                <h3 className={`text-xs uppercase ${textSecondaryClass} mb-4`}>OTHERS</h3>
                 <a href="settings"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Settings")}
                 >
                   <FaCog className="mr-3" />
                   <span>Settings</span>
                 </a>
-                <a href="faq"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Support" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                <a href="faq" 
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Support" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Support")}
                 >
                   <FaQuestionCircle className="mr-3" />
@@ -136,12 +149,12 @@ const SupportPage = () => {
                 </a>
               </div>
             </div>
-
-            {/* logout */}
-            <div className="p-6 border-t border-gray-100 mt-auto">
+              
+            {/* Logout */}
+            <div className={`p-6 border-t ${borderClass} mt-auto`}>
               <button 
                 onClick={handleLogout}
-                className="flex items-center w-full p-3 text-purple-600 hover:bg-red-50 rounded-lg"
+                className={`flex items-center w-full p-3 ${getThemeClass('text-purple-600', 'text-blue-600')} hover:bg-red-50 rounded-lg`}
               >
                 <FaSignOutAlt className="mr-3" />
                 <span>Logout</span>
@@ -149,145 +162,118 @@ const SupportPage = () => {
             </div>
           </div>
 
-          {/* main content */}
+          {/* Main Content */}
           <div className="flex-1 p-6 overflow-y-auto">
-            {/* header */}
+            {/* Header */}
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center">
                 <div>
-                  <h2 className="font-medium text-gray-800">{username}</h2>
-                  <span className="text-sm text-gray-500">{nickname}</span>
+                  <h2 className={`font-medium ${textMainClass}`}>{username}</h2>
+                  <span className={`text-sm ${textSecondaryClass}`}>{nickname}</span>
                 </div>
               </div>
-              <div className="flex items-center">
-                {showSearchInput ? (
-                  <div className="relative mr-2">
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 pr-10 text-sm"
-                      placeholder="Search..."
-                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    />
-                    <FaSearch 
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
-                      onClick={handleSearch}
-                    />
-                  </div>
-                ) : (
-                  <button className="p-2 text-gray-400 mr-2" onClick={handleSearch}>
-                    <FaSearch />
-                  </button>
-                )}
-                <button className="p-2 text-gray-400 mr-4">
-                  <FaBell />
-                </button>
+              <div className="flex items-center">             
               </div>
             </div>
 
-            {/* support content */}
-            <div className="p-6 bg-white border border-gray-100 rounded-lg shadow-sm mb-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Support Center</h2>
-              </div>
+            {/* Support panel */}
+            <div className={`p-6 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm mb-6`}>
+              <h2 className={`text-xl font-bold ${textMainClass} mb-6`}>Support Center</h2>
 
-              {/* tabs */}
-              <div className="flex border-b border-gray-200 mb-6">
+              {/* Tabs for support */}
+              <div className={`flex border-b ${borderClass} mb-6`}>
                 <button
-                  className={`py-2 px-4 text-sm font-medium ${activeTab === 'contact' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('contact')}
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === "contact"
+                      ? `${getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600')}`
+                      : `${textSecondaryClass} hover:${textMainClass}`
+                  }`}
+                  onClick={() => setActiveTab("contact")}
                 >
                   Contact Us
                 </button>
                 <button
-                  className={`py-2 px-4 text-sm font-medium ${activeTab === 'faq' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('faq')}
+                  className={`px-4 py-2 font-medium ${
+                    activeTab === "faq"
+                      ? `${getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600')}`
+                      : `${textSecondaryClass} hover:${textMainClass}`
+                  }`}
+                  onClick={() => setActiveTab("faq")}
                 >
                   FAQ
                 </button>
               </div>
 
-              {/* contact form */}
-              {activeTab === 'contact' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="col-span-2">
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="your@email.com"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                        <input
-                          type="text"
-                          value={subject}
-                          onChange={(e) => setSubject(e.target.value)}
-                          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="How can we help you?"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                        <textarea
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          className="w-full p-3 border border-gray-200 rounded-lg h-32 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                          placeholder="Please describe your issue in detail..."
-                          required
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-medium"
-                      >
-                        Submit Request
-                      </button>
-                    </form>
+              {activeTab === "contact" && (
+                <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+                  <div>
+                    <label className={`block text-sm font-medium ${textMainClass} mb-1`}>
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md`}
+                      required
+                    />
                   </div>
                   <div>
+                    <label className={`block text-sm font-medium ${textMainClass} mb-1`}>Subject</label>
+                    <input
+                      type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md`}
+                      required
+                    />
                   </div>
-                </div>
+                  <div>
+                    <label className={`block text-sm font-medium ${textMainClass} mb-1`}>Message</label>
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md resize-none`}
+                      rows={4}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className={`px-4 py-2 ${getThemeClass('bg-purple-600 hover:bg-purple-700', 'bg-blue-600 hover:bg-blue-700')} text-white rounded-md transition duration-300`}
+                  >
+                    Submit Request
+                  </button>
+                </form>
               )}
 
-              {/*faq*/}
-              {activeTab === 'faq' && (
+              {activeTab === "faq" && (
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Frequently Asked Questions</h3>
+                  <h3 className={`text-lg font-medium mb-4 ${textMainClass}`}>Frequently Asked Questions</h3>
                   <div className="space-y-4">
                     {faqs.map((faq, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                        <details className="group">
-                          <summary className="flex justify-between items-center p-4 cursor-pointer bg-gray-50 hover:bg-gray-100">
-                            <span className="font-medium">{faq.question}</span>
-                            <FaChevronDown className="text-gray-500 group-open:rotate-180 transition-transform" />
-                          </summary>
-                          <div className="p-4 border-t border-gray-200">
-                            <p className="text-gray-700">{faq.answer}</p>
-                          </div>
-                        </details>
-                      </div>
+                      <details
+                        key={index}
+                        className={`border ${borderClass} rounded-lg overflow-hidden`}
+                      >
+                        <summary className={`flex justify-between items-center p-4 cursor-pointer ${detailsBgClass} ${detailsHoverClass}`}>
+                          <span className={`font-medium ${textMainClass}`}>{faq.question}</span>
+                          <FaChevronDown className={`${textSecondaryClass} transition-transform group-open:rotate-180`} />
+                        </summary>
+                        <div className={`p-4 border-t ${borderClass} ${textMainClass}`}>{faq.answer}</div>
+                      </details>
                     ))}
                   </div>
-                  <div className="mt-6 bg-purple-50 p-4 rounded-lg">
-                    <p className="text-center">
-                      <span className="block font-medium text-gray-800 mb-2">Didn't find what you were looking for?</span>
-                      <button 
-                        onClick={() => setActiveTab('contact')}
-                        className="text-purple-600 hover:text-purple-800 font-medium"
-                      >
-                        Contact Us!
-                      </button>
+                  <div className={`mt-6 ${theme === "dark" ? "bg-gray-700" : "bg-gray-50"} p-4 rounded-lg text-center`}>
+                    <p className={`font-medium ${textMainClass} mb-2`}>
+                      Didn't find what you were looking for?
                     </p>
+                    <button
+                      onClick={() => setActiveTab("contact")}
+                      className={`${getThemeClass('text-purple-600 hover:text-purple-800', 'text-blue-600 hover:text-blue-800')} font-medium`}
+                    >
+                      Contact Us!
+                    </button>
                   </div>
                 </div>
               )}
@@ -295,7 +281,9 @@ const SupportPage = () => {
           </div>
         </div>
       </div>
-      <footer className="text-center text-sm text-gray-500 mt-8">© 2025 WealthGuard. All rights reserved.</footer>
+      <footer className={`text-center text-sm ${textSecondaryClass} mt-8`}>
+        © 2025 WealthGuard. All rights reserved.
+      </footer>
     </div>
   );
 };

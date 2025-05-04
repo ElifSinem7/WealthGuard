@@ -1,44 +1,36 @@
-import React, { useState } from 'react';
-import { FaTimes, FaCalendarAlt, FaDollarSign, FaTag } from 'react-icons/fa';
-import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
+import React, { useState } from "react";
+import { FaTimes, FaCalendarAlt, FaDollarSign, FaTag } from "react-icons/fa";
+import { useThemeLanguage } from "./ThemeLanguageContext";
 
 const PaMod = ({ isOpen, onClose, onSave }) => {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("Utility");
+  const [amount, setAmount] = useState("");
+  const [dueDate, setDueDate] = useState("1");
 
-  useThemeAndLanguageInit();
-  
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('Utility');
-  const [amount, setAmount] = useState('');
-  const [dueDate, setDueDate] = useState('1');
-  
-  // kategoriler
+  // Get theme context
+  const { 
+    theme, 
+    colorTheme,
+    fontSize 
+  } = useThemeLanguage();
+
   const categories = [
-    'Housing',
-    'Utility',
-    'Insurance',
-    'Entertainment',
-    'Health',
-    'Transportation',
-    'Education',
-    'Subscription',
-    'Loan',
-    'Other'
+    "Housing", "Utility", "Insurance", "Entertainment", "Health",
+    "Transportation", "Education", "Subscription", "Loan", "Other"
   ];
-  
-  //dates
+
   const dates = Array.from({ length: 31 }, (_, i) => i + 1);
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     if (!name || !amount || !dueDate) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
-    
-    //new payments
+
     const newPayment = {
-      id: Date.now(), 
+      id: Date.now(),
       name,
       category,
       amount: parseFloat(amount),
@@ -46,121 +38,138 @@ const PaMod = ({ isOpen, onClose, onSave }) => {
       paid: false,
       icon: getCategoryIcon(category),
     };
-    
+
     onSave(newPayment);
     resetForm();
     onClose();
   };
-  
+
   const resetForm = () => {
-    setName('');
-    setCategory('Utility');
-    setAmount('');
-    setDueDate('1');
+    setName("");
+    setCategory("Utility");
+    setAmount("");
+    setDueDate("1");
   };
-  
+
   const getCategoryIcon = (category) => {
-    switch(category.toLowerCase()) {
-      case 'housing': return 'home';
-      case 'utility': return 'utility';
-      case 'insurance': return 'shield';
-      case 'entertainment': return 'video';
-      case 'health': return 'health';
-      case 'transportation': return 'car';
-      case 'education': return 'book';
-      case 'subscription': return 'refresh';
-      case 'loan': return 'money';
-      default: return 'tag';
+    switch (category.toLowerCase()) {
+      case "housing": return "home";
+      case "utility": return "utility";
+      case "insurance": return "shield";
+      case "entertainment": return "video";
+      case "health": return "health";
+      case "transportation": return "car";
+      case "education": return "book";
+      case "subscription": return "refresh";
+      case "loan": return "money";
+      default: return "tag";
     }
   };
-  
+
+  // Method to get the appropriate color class based on current theme
+  const getThemeClass = (purpleClass, blueClass) => {
+    return colorTheme === 'blue' ? blueClass : purpleClass;
+  };
+
+  // Dynamic classes based on theme
+  const bgModalClass = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textMainClass = theme === "dark" ? "text-white" : "text-gray-800";
+  const textSecondaryClass = theme === "dark" ? "text-gray-300" : "text-gray-500";
+  const textLabelClass = theme === "dark" ? "text-gray-300" : "text-gray-700";
+  const borderClass = theme === "dark" ? "border-gray-700" : "border-gray-100";
+  const inputBgClass = theme === "dark" ? "bg-gray-700" : "bg-gray-50";
+  const inputBorderClass = theme === "dark" ? "border-gray-600" : "border-gray-200";
+  const buttonHoverClass = theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const cancelBtnTextClass = theme === "dark" ? "text-gray-300" : "text-gray-700";
+  const cancelBtnBorderClass = theme === "dark" ? "border-gray-600" : "border-gray-300";
+
+  // Apply font size class based on settings
+  const fontSizeClass = 
+    fontSize === "small" ? "text-sm" : 
+    fontSize === "large" ? "text-lg" : 
+    "text-base";
+
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center p-5 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800">Add Monthly Payment</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+      <div className={`${bgModalClass} rounded-lg shadow-xl w-full max-w-md ${fontSizeClass}`}>
+        <div className={`flex justify-between items-center p-5 border-b ${borderClass}`}>
+          <h2 className={`text-xl font-bold ${textMainClass}`}>Add Monthly Payment</h2>
+          <button onClick={onClose} className={`${textSecondaryClass} hover:${textMainClass}`}>
             <FaTimes />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-5">
+          {/* Name */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Payment Name *
-            </label>
+            <label className={`block ${textLabelClass} text-sm font-medium mb-2`}>Payment Name *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className={`w-full px-3 py-2 border ${inputBorderClass} rounded-md ${inputBgClass} ${textMainClass} focus:ring-2 ${getThemeClass('focus:ring-purple-500', 'focus:ring-blue-500')}`}
               placeholder="e.g. Rent, Netflix, Electric Bill"
               required
             />
           </div>
-          
+
+          {/* Category */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Category
-            </label>
+            <label className={`block ${textLabelClass} text-sm font-medium mb-2`}>Category</label>
             <div className="relative">
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
+                className={`w-full px-3 py-2 border ${inputBorderClass} rounded-md ${inputBgClass} ${textMainClass} focus:ring-2 ${getThemeClass('focus:ring-purple-500', 'focus:ring-blue-500')} appearance-none`}
               >
                 {categories.map((cat, idx) => (
                   <option key={idx} value={cat}>{cat}</option>
                 ))}
               </select>
-              <FaTag className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <FaTag className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${textSecondaryClass} pointer-events-none`} />
             </div>
           </div>
-          
+
+          {/* Amount & Due Date */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Amount ($) *
-              </label>
+              <label className={`block ${textLabelClass} text-sm font-medium mb-2`}>Amount ($) *</label>
               <div className="relative">
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  step="0.01" 
+                  step="0.01"
                   min="0"
-                  className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className={`w-full pl-8 pr-3 py-2 border ${inputBorderClass} rounded-md ${inputBgClass} ${textMainClass} focus:ring-2 ${getThemeClass('focus:ring-purple-500', 'focus:ring-blue-500')}`}
                   placeholder="0.00"
                   required
                 />
-                <FaDollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaDollarSign className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${textSecondaryClass}`} />
               </div>
             </div>
-            
+
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Due Date *
-              </label>
+              <label className={`block ${textLabelClass} text-sm font-medium mb-2`}>Due Date *</label>
               <div className="relative">
                 <select
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
+                  className={`w-full pl-8 pr-3 py-2 border ${inputBorderClass} rounded-md ${inputBgClass} ${textMainClass} focus:ring-2 ${getThemeClass('focus:ring-purple-500', 'focus:ring-blue-500')} appearance-none`}
                   required
                 >
                   {dates.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
+                    <option key={day} value={day}>{day}</option>
                   ))}
                 </select>
-                <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaCalendarAlt className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${textSecondaryClass}`} />
               </div>
             </div>
           </div>
-          
+
+          {/* Buttons */}
           <div className="flex justify-end gap-3">
             <button
               type="button"
@@ -168,13 +177,13 @@ const PaMod = ({ isOpen, onClose, onSave }) => {
                 resetForm();
                 onClose();
               }}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className={`px-4 py-2 border ${cancelBtnBorderClass} rounded-md ${cancelBtnTextClass} ${buttonHoverClass}`}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600"
+              className={`px-4 py-2 ${getThemeClass('bg-purple-500 hover:bg-purple-600', 'bg-blue-500 hover:bg-blue-600')} text-white rounded-md`}
             >
               Add Payment
             </button>

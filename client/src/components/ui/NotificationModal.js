@@ -3,7 +3,7 @@ import { Modal, Box, Typography, Button, List, ListItem, ListItemText, IconButto
 import { FaTrash } from "react-icons/fa";
 
 const NotificationModal = ({ open, onClose, notifications }) => {
-  const [localNotifications, setLocalNotifications] = useState(notifications);
+  const [localNotifications, setLocalNotifications] = useState(notifications || []);
 
   const handleMarkAsRead = (index) => {
     const updated = [...localNotifications];

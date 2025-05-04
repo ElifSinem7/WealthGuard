@@ -1,85 +1,143 @@
 import { Link } from "react-router-dom";
+import { useThemeLanguage } from "./ThemeLanguageContext";
 
 export default function ContactUs() {
-    return (
-      <div className="h-screen w-screen bg-white flex flex-col font-worksans">
-        {/* headbar */}
-        <nav className="w-full px-10 py-4 flex justify-between items-center bg-gray-50 border-b">
-          {/* logo */}
-          <div className="flex items-center gap-3">
-          <img 
-            src="/logo.png" 
-            alt="Logo" 
-            className="w-24 h-24 object-cover"
-            />
-           
-           <Link to="/" className="text-5xl italic font-bold text-gray-900">
-                WealthGuard
-            </Link>
+  const { theme } = useThemeLanguage();
 
+  // Apply theme-based styles
+  const themeStyles = {
+    backgroundColor: theme === "dark" ? "var(--bg-main)" : "white",
+    color: theme === "dark" ? "var(--text-main)" : "inherit",
+  };
 
-          </div>
-          
-           {/* right */}
-    <div className="flex items-center space-x-6">
-        <Link to="/signin" className="text-xl font-semibold text-gray-700 hover:text-gray-900">
+  const buttonStyles = {
+    backgroundColor: theme === "dark" ? "#555" : "#A6B3A4",
+    color: theme === "dark" ? "white" : "black",
+  };
+
+  return (
+    <div className="h-screen w-screen flex flex-col font-worksans" style={themeStyles}>
+      {/* Navbar */}
+      <nav 
+        className="w-full px-10 py-4 flex justify-between items-center border-b"
+        style={{ 
+          backgroundColor: theme === "dark" ? "var(--bg-secondary)" : "var(--bg-secondary)",
+          borderColor: theme === "dark" ? "var(--border-color)" : "var(--border-color)"
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Logo" className="w-24 h-24 object-cover" />
+          <Link to="/" className="text-5xl italic font-bold" style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}>
+            WealthGuard
+          </Link>
+        </div>
+        <div className="flex items-center space-x-6">
+          <Link
+            to="/signin"
+            className="text-xl font-semibold hover:opacity-80"
+            style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(55, 65, 81)" }}
+          >
             Sign In
           </Link>
-          <Link to="/signup"
-            className="px-6 py-3 text-xl font-semibold text-gray-900 rounded-full hover:opacity-80"
-            style={{ backgroundColor: "#A6B3A4" }}
+          <Link
+            to="/signup"
+            className="px-6 py-3 text-xl font-semibold rounded-full hover:opacity-80"
+            style={buttonStyles}
           >
             Sign Up
           </Link>
-    </div>
-    </nav>
-  
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gray-50 px-6 py-12">
-      <div className="max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
-        <p className="text-lg text-gray-700 leading-relaxed">
-         <b>Elif Sinem Genç</b> <br /> elifsinem.genc@agu.edu.tr
-        </p>
-        <p className="text-lg text-gray-700 leading-relaxed mt-4">
-          <b>Gülden Akkuş</b> <br /> gulden.akkus@agu.edu.tr
-        </p>
-        <p className="text-lg text-gray-700 leading-relaxed mt-4">
-          <b>Emine Kaya</b> <br /> emine.kaya@agu.edu.tr
-        </p>
-      </div>
-    </div>
-
-  
-        {/*bottombar*/}
-        <footer className="w-full bg-gray-50 border-t border-gray-100 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-gray-700">
-    
-    {/*about*/}
-    <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
-      <h2 className="text-2xl font-semibold text-gray-900">WealthGuard</h2>
-      <p className="text-sm mt-2">
-        WealthGuard helps you manage your budget, track expenses, and achieve your financial goals with smart insights and automation.
-      </p>
-    </div>
-
-    {/*aboutinfo*/}
-    <div className="text-center">
-      <h3 className="text-lg font-semibold text-gray-900">Quick Links</h3>
-      <ul className="text-sm space-y-1 mt-2">
-         <li> <Link to ="/about" className="hover:text-gray-900">About</Link></li> 
-        <li> <Link to ="/contactus"className="hover:text-gray-900">Contact Us</Link></li>
-        <li> <Link to ="/support" className="hover:text-gray-900">Support</Link></li>
-      </ul>
-    </div>
-
-    {/*copyright*/}
-    <div className="flex items-center h-full">
-      <p className="text-xs text-gray-500">© 2025 WealthGuard. All rights reserved.</p>
-    </div>
-
         </div>
-        </footer>
+      </nav>
+
+      {/* Content */}
+      <div 
+        className="flex flex-col items-center justify-center flex-grow px-6 py-12"
+        style={{ backgroundColor: theme === "dark" ? "var(--bg-secondary)" : "rgb(249, 250, 251)" }}
+      >
+        <div 
+          className="max-w-3xl p-8 rounded-2xl shadow-lg text-center"
+          style={{ 
+            backgroundColor: theme === "dark" ? "var(--bg-main)" : "white",
+          }}
+        >
+          <h1 
+            className="text-3xl font-bold mb-4"
+            style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}
+          >
+            Contact Us
+          </h1>
+          <p 
+            className="text-lg leading-relaxed"
+            style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}
+          >
+            <strong>Elif Sinem Genç</strong> <br />
+            elifsinem.genc@agu.edu.tr
+          </p>
+          <p 
+            className="text-lg leading-relaxed mt-4"
+            style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}
+          >
+            <strong>Gülden Akkuş</strong> <br />
+            gulden.akkus@agu.edu.tr
+          </p>
+          <p 
+            className="text-lg leading-relaxed mt-4"
+            style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}
+          >
+            <strong>Emine Kaya</strong> <br />
+            emine.kaya@agu.edu.tr
+          </p>
+        </div>
       </div>
-    );
-  }
-  
+
+      {/* Footer */}
+      <footer 
+        className="w-full border-t py-8"
+        style={{ 
+          backgroundColor: theme === "dark" ? "var(--bg-secondary)" : "rgb(249, 250, 251)",
+          borderColor: theme === "dark" ? "var(--border-color)" : "rgb(243, 244, 246)" 
+        }}
+      >
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6">
+          <div className="text-center md:text-left max-w-sm mb-4 md:mb-0">
+            <h2 className="text-2xl font-semibold" style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}>
+              WealthGuard
+            </h2>
+            <p className="text-sm mt-2" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
+              WealthGuard helps you manage your budget, track expenses, and achieve your financial goals with smart insights and automation.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <h3 className="text-lg font-semibold" style={{ color: theme === "dark" ? "var(--text-main)" : "rgb(17, 24, 39)" }}>
+              Quick Links
+            </h3>
+            <ul className="text-sm space-y-1 mt-2">
+              <li>
+                <Link to="/about" className="hover:opacity-80" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/contactus" className="hover:opacity-80" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/support" className="hover:opacity-80" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
+                  Support
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex items-center h-full">
+            <p style={{ color: theme === "dark" ? "#888" : "rgb(107, 114, 128)", fontSize: "0.75rem" }}>
+              © 2025 WealthGuard. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

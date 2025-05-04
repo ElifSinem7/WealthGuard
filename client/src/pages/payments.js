@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, FaSignOutAlt, FaSearch, FaBell, FaPlus, FaTrash, FaCalendarAlt, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, 
+  FaSignOutAlt, FaSearch, FaPlus, FaTrash, FaCalendarAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
-import PaMod from '../pages/paymod'
-import useThemeAndLanguageInit from '../hooks/useThemeAndLanguageInit';
+import PaMod from '../pages/paymod';
+import { useThemeLanguage } from "./ThemeLanguageContext"; // Import the theme context
 
 const WealthGuardPayments = () => {
-
-  useThemeAndLanguageInit();
-  
   const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
@@ -23,6 +21,12 @@ const WealthGuardPayments = () => {
   // mock user data
   const [username] = useState("examp name");
   const [nickname] = useState("examp nickname");
+  
+  // Get theme context
+  const { 
+    theme, 
+    colorTheme
+  } = useThemeLanguage();
   
   // Get current date
   const currentDate = new Date();
@@ -91,6 +95,9 @@ const WealthGuardPayments = () => {
   const handleNavClick = (pageName) => {
     setActivePage(pageName);
     console.log(`Navigating to ${pageName}`);
+    if (pageName !== "Payments") {
+      navigate(`/${pageName.toLowerCase()}`);
+    }
   };
 
   const handleSearch = () => {
@@ -163,49 +170,66 @@ const WealthGuardPayments = () => {
 
   const categories = ["All", ...new Set(payments.map(payment => payment.category))];
 
+  // Method to get the appropriate color class based on current theme
+  const getThemeClass = (purpleClass, blueClass) => {
+    return colorTheme === 'blue' ? blueClass : purpleClass;
+  };
+
+  // Dynamic classes based on theme
+  const bgMainClass = theme === "dark" ? "bg-gray-900" : "bg-purple-50";
+  const bgCardClass = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textMainClass = theme === "dark" ? "text-white" : "text-gray-800";
+  const textSecondaryClass = theme === "dark" ? "text-gray-300" : "text-gray-500";
+  const borderClass = theme === "dark" ? "border-gray-700" : "border-gray-100";
+  const inputBgClass = theme === "dark" ? "bg-gray-700" : "bg-gray-50";
+  const inputBorderClass = theme === "dark" ? "border-gray-600" : "border-gray-200";
+  const hoverBgClass = theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50";
+  const alertBgClass = theme === "dark" ? "bg-yellow-900" : "bg-yellow-50";
+  const alertBorderClass = theme === "dark" ? "border-yellow-800" : "border-yellow-100";
+
   return (
-    <div className="h-screen w-screen font-worksans flex flex-col justify-between bg-purple-50 p-8 overflow-hidden">
+    <div className={`h-screen w-screen font-worksans flex flex-col justify-between ${bgMainClass} p-8 overflow-hidden`}>
       <div className="flex-1 flex justify-center items-center">
-        <div className="mx-auto h-[calc(100vh-100px)] flex bg-white rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl">
+        <div className={`mx-auto h-[calc(100vh-100px)] flex ${bgCardClass} rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl`}>
 
           {/*sidebar*/}
-          <div className="w-64 border-r border-gray-100 flex flex-col justify-between">
+          <div className={`w-64 border-r ${borderClass} flex flex-col justify-between`}>
             <div>
-              <div className="p-6 border-b border-gray-100">
+              <div className={`p-6 border-b ${borderClass}`}>
                 <div className="flex items-center mb-2">
                   <div className="mr-2">
                     <img src="/logo.png" alt="Logo" className="w-16 h-16 object-cover" />
                   </div>
-                  <a href="maindashboard" className="text-2xl italic font-bold text-gray-900">WealthGuard</a>
+                  <a href="maindashboard" className={`text-2xl italic font-bold ${textMainClass}`}>WealthGuard</a>
                 </div>
               </div>
 
               {/*main*/}
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-xs uppercase text-gray-400 mb-2">MAIN</h3>
+              <div className={`p-6 border-b ${borderClass}`}>
+                <h3 className={`text-xs uppercase ${textSecondaryClass} mb-2`}>MAIN</h3>
                 <a href="maindashboard"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Dashboard")}
                 >
                   <FaHome className="mr-3" />
                   <span className="font-medium">Dashboard</span>
                 </a>
                 <a href="recurringTransactionPage"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Transactions")}
                 >
                   <FaClock className="mr-3" />
                   <span>Transactions</span>
                 </a>
                 <a href="payments" 
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Payments")}
                 >
                   <FaCreditCard className="mr-3" />
                   <span>Payments</span>
                 </a>
                 <a href="exchange"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Exchange")}
                 >
                   <FaExchangeAlt className="mr-3" />
@@ -214,17 +238,17 @@ const WealthGuardPayments = () => {
               </div>
 
               <div className="p-6">
-                <h3 className="text-xs uppercase text-gray-400 mb-4">OTHERS</h3>
+                <h3 className={`text-xs uppercase ${textSecondaryClass} mb-4`}>OTHERS</h3>
                 <a href="settings"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Settings")}
                 >
                   <FaCog className="mr-3" />
                   <span>Settings</span>
                 </a>
                 <a href="faq" 
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Support" ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}`}
-                  onClick={() => handleNavClick("Support")}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "faq" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  onClick={() => handleNavClick("faq")}
                 >
                   <FaQuestionCircle className="mr-3" />
                   <span>Support</span>
@@ -233,10 +257,10 @@ const WealthGuardPayments = () => {
             </div>
 
             {/* logout */}
-            <div className="p-6 border-t border-gray-100 mt-auto">
+            <div className={`p-6 border-t ${borderClass} mt-auto`}>
               <button 
                 onClick={handleLogout}
-                className="flex items-center w-full p-3 text-purple-600 hover:bg-red-50 rounded-lg"
+                className={`flex items-center w-full p-3 ${getThemeClass('text-purple-600', 'text-blue-600')} hover:bg-red-50 rounded-lg`}
               >
                 <FaSignOutAlt className="mr-3" />
                 <span>Logout</span>
@@ -250,8 +274,8 @@ const WealthGuardPayments = () => {
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center">
                 <div>
-                  <h2 className="font-medium text-gray-800">{username}</h2>
-                  <span className="text-sm text-gray-500">{nickname}</span>
+                  <h2 className={`font-medium ${textMainClass}`}>{username}</h2>
+                  <span className={`text-sm ${textSecondaryClass}`}>{nickname}</span>
                 </div>
               </div>
               <div className="flex items-center">
@@ -262,7 +286,7 @@ const WealthGuardPayments = () => {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 pr-10 text-sm"
+                      className={`${inputBgClass} border ${inputBorderClass} rounded-md px-4 py-2 pr-10 text-sm ${textMainClass}`}
                       placeholder="Search payments..."
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     />
@@ -276,39 +300,36 @@ const WealthGuardPayments = () => {
                     <FaSearch />
                   </button>
                 )}
-                <button className="p-2 text-gray-400 mr-4">
-                  <FaBell />
-                </button>
               </div>
             </div>
 
             {/* Payments header */}
-            <div className="p-3 bg-white border border-gray-100 rounded-lg shadow-sm mb-4">
+            <div className={`p-3 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm mb-4`}>
               <div className="flex justify-between items-center mb-1">
-                <h2 className="text-2xl font-bold text-gray-800">Monthly Payments</h2>
+                <h2 className={`text-2xl font-bold ${textMainClass}`}>Monthly Payments</h2>
               </div>
               
               <div className="grid grid-cols-3 gap-4 mb-1">
-                <div className="p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div className={`p-4 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm`}>
                   <div className="flex items-center mb-2">
-                    <div className="w-2 h-2 bg-purple-950 rounded-full mr-2"></div>
-                    <span className="text-xs text-gray-500">Total Monthly</span>
+                    <div className={`w-2 h-2 ${getThemeClass('bg-purple-950', 'bg-blue-950')} rounded-full mr-2`}></div>
+                    <span className={`text-xs ${textSecondaryClass}`}>Total Monthly</span>
                   </div>
-                  <div className="text-1xl font-bold text-purple-600">${totalMonthlyPayment.toLocaleString()}</div>
+                  <div className={`text-1xl font-bold ${getThemeClass('text-purple-600', 'text-blue-600')}`}>${totalMonthlyPayment.toLocaleString()}</div>
                 </div>
 
-                <div className="p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div className={`p-4 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm`}>
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="text-xs text-gray-500">Paid</span>
+                    <span className={`text-xs ${textSecondaryClass}`}>Paid</span>
                   </div>
                   <div className="text-1xl font-bold text-green-600">${paidAmount.toLocaleString()}</div>
                 </div>
 
-                <div className="p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                <div className={`p-4 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm`}>
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                    <span className="text-xs text-gray-500">Remaining</span>
+                    <span className={`text-xs ${textSecondaryClass}`}>Remaining</span>
                   </div>
                   <div className="text-1xl font-bold text-red-500">${unpaidAmount.toLocaleString()}</div>
                 </div>
@@ -317,10 +338,10 @@ const WealthGuardPayments = () => {
 
             {/* Upcoming payment alerts */}
             {upcomingPayments.length > 0 && (
-              <div className="p-4 bg-yellow-50 border border-yellow-100 rounded-lg shadow-sm mb-4">
+              <div className={`p-4 ${alertBgClass} border ${alertBorderClass} rounded-lg shadow-sm mb-4`}>
                 <div className="flex items-center mb-3">
                   <FaExclamationTriangle className="mr-2 text-yellow-500" />
-                  <h3 className="font-bold text-gray-800">Upcoming Payments</h3>
+                  <h3 className={`font-bold ${textMainClass}`}>Upcoming Payments</h3>
                 </div>
                 <div className="space-y-2">
                   {upcomingPayments.map(payment => {
@@ -332,19 +353,19 @@ const WealthGuardPayments = () => {
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
                     return (
-                      <div key={payment.id} className="flex items-center justify-between p-2 bg-white rounded-md">
+                      <div key={payment.id} className={`flex items-center justify-between p-2 ${bgCardClass} rounded-md`}>
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
                             <FaCalendarAlt className="text-yellow-600" />
                           </div>
                           <div>
-                            <div className="font-medium">{payment.name}</div>
-                            <div className="text-xs text-gray-500">
+                            <div className={`font-medium ${textMainClass}`}>{payment.name}</div>
+                            <div className={`text-xs ${textSecondaryClass}`}>
                               {diffDays === 0 ? 'Due today' : `Due in ${diffDays} day${diffDays > 1 ? 's' : ''}`}
                             </div>
                           </div>
                         </div>
-                        <div className="font-medium">${payment.amount.toFixed(2)}</div>
+                        <div className={`font-medium ${textMainClass}`}>${payment.amount.toFixed(2)}</div>
                       </div>
                     );
                   })}
@@ -353,12 +374,12 @@ const WealthGuardPayments = () => {
             )}
 
             {/* payment filters */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-4 mb-6">
+            <div className={`${bgCardClass} border ${borderClass} rounded-lg shadow-sm p-4 mb-6`}>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="relative">
                     <select
-                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 pr-8 text-sm appearance-none"
+                      className={`${inputBgClass} border ${inputBorderClass} rounded-md px-4 py-2 pr-8 text-sm appearance-none ${textMainClass}`}
                       value={filterCategory}
                       onChange={(e) => setFilterCategory(e.target.value)}
                     >
@@ -371,7 +392,7 @@ const WealthGuardPayments = () => {
                   
                   <div className="relative">
                     <select
-                      className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 pr-8 text-sm appearance-none"
+                      className={`${inputBgClass} border ${inputBorderClass} rounded-md px-4 py-2 pr-8 text-sm appearance-none ${textMainClass}`}
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                     >
@@ -385,7 +406,7 @@ const WealthGuardPayments = () => {
                   
                   <button 
                     onClick={toggleSortOrder}
-                    className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 text-sm"
+                    className={`${inputBgClass} border ${inputBorderClass} rounded-md px-4 py-2 text-sm ${textMainClass}`}
                   >
                     {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
                   </button>
@@ -393,7 +414,8 @@ const WealthGuardPayments = () => {
                   
                 <button
                   onClick={handleAddPayment}
-                  className="flex items-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm" >
+                  className={`flex items-center ${getThemeClass('bg-purple-500 hover:bg-purple-600', 'bg-blue-500 hover:bg-blue-600')} text-white px-4 py-2 rounded-md text-sm`}
+                >
                   <FaPlus className="mr-2" />
                   Add Payment
                 </button>
@@ -401,10 +423,10 @@ const WealthGuardPayments = () => {
             </div>
 
             {/* payments list */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
-              <div className="bg-gray-50 py-3 px-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-medium text-gray-700">Monthly Recurring Payments</h3>
-                <div className="text-sm text-gray-500">
+            <div className={`${bgCardClass} border ${borderClass} rounded-lg shadow-sm overflow-hidden`}>
+              <div className={`${theme === "dark" ? bgCardClass : "bg-gray-50"} py-3 px-4 border-b ${borderClass} flex items-center justify-between`}>
+                <h3 className={`font-medium ${textMainClass}`}>Monthly Recurring Payments</h3>
+                <div className={`text-sm ${textSecondaryClass}`}>
                   {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </div>
               </div>
@@ -414,19 +436,19 @@ const WealthGuardPayments = () => {
                   {filteredPayments.map((payment, index) => (
                     <div 
                       key={index} 
-                      className={`flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 ${payment.paid ? 'bg-gray-50' : ''}`}
+                      className={`flex items-center justify-between p-4 border-b ${borderClass} ${hoverBgClass} ${payment.paid && theme === "dark" ? 'bg-gray-700' : payment.paid ? 'bg-gray-50' : ''}`}
                     >
                       <div className="flex items-center">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${payment.paid ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
                           {payment.paid ? '✓' : payment.dueDate}
                         </div>
                         <div>
-                          <div className="font-medium">{payment.name}</div>
+                          <div className={`font-medium ${textMainClass}`}>{payment.name}</div>
                         </div>
                       </div>
                       
                       <div className="flex items-center">
-                        <div className="font-medium text-gray-800 mr-4">
+                        <div className={`font-medium ${textMainClass} mr-4`}>
                           ${payment.amount.toFixed(2)}
                         </div>
                         
@@ -450,7 +472,7 @@ const WealthGuardPayments = () => {
                   ))}
                 </div>
               ) : (
-                <div className="py-8 text-center text-gray-500">
+                <div className={`py-8 text-center ${textSecondaryClass}`}>
                   No payments found matching your filters.
                 </div>
               )}
@@ -458,12 +480,14 @@ const WealthGuardPayments = () => {
           </div>
         </div>
       </div>
-      <footer className="text-center text-sm text-gray-500 mt-8">© 2025 WealthGuard. All rights reserved.</footer>
+      <footer className={`text-center text-sm ${textSecondaryClass} mt-8`}>© 2025 WealthGuard. All rights reserved.</footer>
       <PaMod
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSavePayment}
-        />
+        theme={theme}
+        colorTheme={colorTheme}
+      />
     </div>
   );
 };

@@ -13,6 +13,7 @@ module.exports = {
           text: '#ffffff',
         },
       },
+      darkMode: 'class',
       fontFamily: {
         sans: ["Work Sans", "sans-serif"],
       },
