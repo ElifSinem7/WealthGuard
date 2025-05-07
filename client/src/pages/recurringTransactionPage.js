@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, 
-  FaSignOutAlt, FaSearch, FaPlus } from 'react-icons/fa';
+  FaSignOutAlt, FaSearch, FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import AddTransactionModal from './AddTransactionModal';
 import { useThemeLanguage } from './ThemeLanguageContext'; // Tema context'i import edildi
+import TransactionService from "../services/transaction.service";
+import { useUser } from '../contexts/UserContext';
 
 const WealthGuardTransactions = () => {
   const navigate = useNavigate();
@@ -18,30 +20,122 @@ const WealthGuardTransactions = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const searchInputRef = React.useRef(null);
+  const { user } = useUser();
+  const [username, setUsername] = useState("examp name");
+  const [nickname, setNickname] = useState("examp nickname");
 
-  // mock user data
-  const [username] = useState("examp name");
-  const [nickname] = useState("examp nickname");
-  
+  const mockTransactions = [
+    { id: 1, name: 'Netflix Subscription', category: 'Entertainment', amount: -24.85, date: '2025-04-05', type: 'expense', icon: 'video' },
+    { id: 3, name: 'Grocery Shopping', category: 'Food', amount: -84.14, date: '2025-04-04', type: 'expense', icon: 'shopping' },
+    { id: 4, name: 'Spotify', category: 'Entertainment', amount: -8.14, date: '2025-04-03', type: 'expense', icon: 'music' },
+    { id: 5, name: 'Salary', category: 'Income', amount: 3500.00, date: '2025-04-01', type: 'income', icon: 'income' },
+    { id: 7, name: 'Amazon Purchase', category: 'Shopping', amount: -67.99, date: '2025-03-23', type: 'expense', icon: 'shopping' },
+    { id: 8, name: 'Freelance Work', category: 'Income', amount: 450.00, date: '2025-03-20', type: 'income', icon: 'income' },
+    { id: 9, name: 'Restaurant', category: 'Food', amount: -45.80, date: '2025-03-18', type: 'expense', icon: 'food' },
+    { id: 10, name: 'Gas Station', category: 'Transport', amount: -35.50, date: '2025-03-15', type: 'expense', icon: 'transport' },
+    { id: 11, name: 'Interest', category: 'Income', amount: 12.34, date: '2025-03-12', type: 'income', icon: 'income' },
+  ];
+
   // Tema context'inden tüm tema bilgilerini al
   const { theme, colorTheme } = useThemeLanguage();
 
   useEffect(() => {
-    const mockTransactions = [
-      { id: 1, name: 'Netflix Subscription', category: 'Entertainment', amount: -24.85, date: '2025-04-05', type: 'expense', icon: 'video' },
-      { id: 3, name: 'Grocery Shopping', category: 'Food', amount: -84.14, date: '2025-04-04', type: 'expense', icon: 'shopping' },
-      { id: 4, name: 'Spotify', category: 'Entertainment', amount: -8.14, date: '2025-04-03', type: 'expense', icon: 'music' },
-      { id: 5, name: 'Salary', category: 'Income', amount: 3500.00, date: '2025-04-01', type: 'income', icon: 'income' },
-      { id: 7, name: 'Amazon Purchase', category: 'Shopping', amount: -67.99, date: '2025-03-23', type: 'expense', icon: 'shopping' },
-      { id: 8, name: 'Freelance Work', category: 'Income', amount: 450.00, date: '2025-03-20', type: 'income', icon: 'income' },
-      { id: 9, name: 'Restaurant', category: 'Food', amount: -45.80, date: '2025-03-18', type: 'expense', icon: 'food' },
-      { id: 10, name: 'Gas Station', category: 'Transport', amount: -35.50, date: '2025-03-15', type: 'expense', icon: 'transport' },
-      { id: 11, name: 'Interest', category: 'Income', amount: 12.34, date: '2025-03-12', type: 'income', icon: 'income' },
-    ];
-    
+    if (user) {
+      setUsername(user.name || "Guest User");
+      setNickname(user.nickname || "Guest");
+    }
+  }, [user]);
+
+  useEffect(() => {
     setTransactions(mockTransactions);
     setFilteredTransactions(mockTransactions);
   }, []);
+
+  useEffect(() => {
+    // Gerçek API'den veri çekme
+    const fetchTransactions = async () => {
+      try {
+        const response = await TransactionService.getAllTransactions();
+        console.log("API yanıtı:", response);
+        
+        // API'den gelen veri formatını kontrol et ve doğru şekilde işle
+        if (response && response.data) {
+          // API data objesi içinde bir data array'i var
+          setTransactions(response.data);
+          setFilteredTransactions(response.data);
+        } else if (Array.isArray(response)) {
+          // Doğrudan array olarak gelen veri
+          setTransactions(response);
+          setFilteredTransactions(response);
+        } else {
+          // Mock verileri kullan
+          console.log("API'den beklenen formatta veri gelmedi, mock veriler kullanılıyor.");
+          setTransactions(mockTransactions);
+          setFilteredTransactions(mockTransactions);
+        }
+      } catch (error) {
+        console.error('İşlemleri getirme hatası:', error);
+        // Yedek olarak mock verileri kullan
+        setTransactions(mockTransactions);
+        setFilteredTransactions(mockTransactions);
+      }
+    };
+    
+    fetchTransactions();
+  }, []);
+  
+  
+  const handleSaveTransaction = async (newTransaction) => {
+    try {
+      console.log("Gönderilen işlem verisi:", newTransaction);
+      
+      const response = await TransactionService.addTransaction(newTransaction);
+      console.log("API yanıtı:", response);
+      
+      if (response && response.data) {
+        // UI güncelleme
+        const updatedTransactions = [response.data, ...transactions];
+        setTransactions(updatedTransactions);
+        applyFilters(updatedTransactions, filterType, filterPeriod, searchQuery);
+      }
+    } catch (error) {
+      console.error('İşlem ekleme hatası:', error);
+      // Hata durumunda da UI güncellemesi yap
+      const updatedTransactions = [newTransaction, ...transactions];
+      setTransactions(updatedTransactions);
+      applyFilters(updatedTransactions, filterType, filterPeriod, searchQuery);
+    }
+  };
+
+  // İşlem silme fonksiyonu
+  const handleDeleteTransaction = async (transactionId) => {
+    if (window.confirm("Bu işlemi silmek istediğinizden emin misiniz?")) {
+      try {
+        // API çağrısı yapın
+        await TransactionService.deleteTransaction(transactionId);
+        
+        // UI'ı güncelleyin: işlemi listeden kaldırın
+        const updatedTransactions = transactions.filter(t => t.id !== transactionId);
+        setTransactions(updatedTransactions);
+        
+        // Filtreleri uygulayın
+        applyFilters(updatedTransactions, filterType, filterPeriod, searchQuery);
+        
+        alert("İşlem başarıyla silindi.");
+      } catch (error) {
+        console.error("İşlemi silme hatası:", error);
+        alert("İşlem silinirken bir hata oluştu.");
+      }
+    }
+  };
+
+  // Düzenleme işlemi (ileride geliştirilecek)
+  const handleEditTransaction = (transaction) => {
+    // Şimdilik sadece log çıkışı yapalım, daha sonra bir modal veya form eklenebilir
+    console.log("Düzenlenecek işlem:", transaction);
+    // Burada bir düzenleme modali açabilirsiniz
+    alert("Düzenleme özelliği henüz eklenmedi.");
+  };
 
   // Tema için dinamik sınıf belirleme
   const getThemeClass = (purpleClass, blueClass) => {
@@ -160,14 +254,15 @@ const WealthGuardTransactions = () => {
     setIsAddModalOpen(true);
   };
   
-  const handleSaveTransaction = (newTransaction) => {
-    const updatedTransactions = [newTransaction, ...transactions];
-    setTransactions(updatedTransactions);
-    applyFilters(updatedTransactions, filterType, filterPeriod, searchQuery);
-  };
 
   const groupTransactionsByDate = () => {
     const grouped = {};
+    
+    // filteredTransactions bir dizi değilse, boş obje döndür
+    if (!Array.isArray(filteredTransactions)) {
+      console.error('filteredTransactions bir dizi değil:', filteredTransactions);
+      return {};
+    }
     
     filteredTransactions.forEach(transaction => {
       const date = new Date(transaction.date).toLocaleDateString();
@@ -426,8 +521,21 @@ const WealthGuardTransactions = () => {
                             <div className={`text-sm ${textSecondaryClass}`}>{transaction.category}</div>
                           </div>
                         </div>
-                        <div className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                          {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                        <div className="flex items-center">
+                          <div className={`font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'} mr-4`}>
+                            {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                          </div>
+                          {/* İşlem Butonları */}
+                          <div className="flex space-x-2">
+                            {/* Silme butonu */}
+                            <button
+                              onClick={() => handleDeleteTransaction(transaction.id)}
+                              className="p-2 rounded-full hover:bg-red-100 text-red-500"
+                              title="Sil"
+                            >
+                              <FaTrash size={16} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

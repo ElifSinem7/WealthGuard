@@ -1,3 +1,4 @@
+import TransactionService from '../services/transaction.service';
 import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaCalendarAlt } from "react-icons/fa";
 import { useThemeLanguage } from "./ThemeLanguageContext";
@@ -98,7 +99,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSave }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
   

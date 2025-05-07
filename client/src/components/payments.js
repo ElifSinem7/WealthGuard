@@ -43,42 +43,11 @@ const WealthGuardPayments = () => {
     { id: 9, name: 'Spotify Subscription', category: 'Entertainment', amount: 9.99, dueDate: 15, paid: true, icon: 'music' },
   ];
   
-  const totalMonthlyPayment = Array.isArray(payments) ? 
-    payments.reduce((sum, payment) => sum + (payment?.amount || 0), 0) : 0;
-
-  const paidAmount = Array.isArray(payments) ? 
-    payments.filter(p => p?.paid).reduce((sum, payment) => sum + (payment?.amount || 0), 0) : 0;
-    
-  const unpaidAmount = totalMonthlyPayment - paidAmount;
-
-  // Get upcoming payments
-  const getUpcomingPayments = () => {
-    if (!Array.isArray(payments)) return [];
-    
-    const today = new Date().getDate();
-    return payments.filter(payment => {
-      if (!payment || payment.paid === true) return false;
-      
-      let dueDay = payment.dueDate;
-      let daysUntilDue = dueDay - today;
-      
-      if (daysUntilDue < 0) {
-        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        daysUntilDue = lastDayOfMonth - today + dueDay;
-      }
-      
-      return daysUntilDue <= 7 && daysUntilDue >= 0;
-    });
-  };
-  
-  // Store upcoming payments in state
-  const [upcomingPayments, setUpcomingPayments] = useState([]);
 
   useEffect(() => {
     setPayments(mockPayments);
     setFilteredPayments(mockPayments);
   }, []);
-  
   // Get theme context
   const { 
     theme, 
@@ -112,47 +81,27 @@ const WealthGuardPayments = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
+        // API isteğini takip et
+        console.log("Ödeme verileri getiriliyor...");
+        console.log("Token:", localStorage.getItem('token'));
+        
         const data = await PaymentService.getAllPayments();
         console.log("API'den gelen ödeme verileri:", data);
         
-        // API'den gelen verilerin yapısını kontrol et
-        if (data && data.data && Array.isArray(data.data)) {
-          // Tüm gerekli alanların varlığını kontrol ederek formatla
-          const formattedPayments = data.data.map(payment => ({
-            id: payment.id,
-            name: payment.name || "Isimsiz Ödeme",
-            category: payment.category || "Diğer",
-            amount: payment.amount || 0,
-            dueDate: payment.dueDate || 1,
-            paid: payment.paid !== undefined ? payment.paid : false,
-            icon: payment.icon || 'default'
-          }));
-          
-          setPayments(formattedPayments);
-          setFilteredPayments(formattedPayments);
-        } else if (data && Array.isArray(data)) {
-          // Doğrudan dizi olarak gelen verileri işle
-          const formattedPayments = data.map(payment => ({
-            id: payment.id,
-            name: payment.name || "Isimsiz Ödeme",
-            category: payment.category || "Diğer",
-            amount: payment.amount || 0,
-            dueDate: payment.dueDate || 1,
-            paid: payment.paid !== undefined ? payment.paid : false,
-            icon: payment.icon || 'default'
-          }));
-          
-          setPayments(formattedPayments);
-          setFilteredPayments(formattedPayments);
+        if (data && data.length > 0) {
+          setPayments(data);
+          setFilteredPayments(data);
         } else {
           // Mock verileri kullan
-          console.log("API'den beklenen formatta veri gelmedi, mock veriler kullanılıyor.");
-          setPayments(mockPayments);
+          console.log("API'den veri gelmedi, mock veriler kullanılıyor.");
+          setPayments(mockPayments); // mockPayments'i tanımlamanız gerekecek
           setFilteredPayments(mockPayments);
         }
       } catch (error) {
         console.error('Ödemeleri getirme hatası:', error);
         console.log("Mock veriler kullanılıyor");
+        // Bir dizi oluşturulması gerekiyorsa
+        const mockPayments = [ /* ... */ ];
         setPayments(mockPayments); 
         setFilteredPayments(mockPayments);
       }
@@ -161,38 +110,19 @@ const WealthGuardPayments = () => {
     fetchPayments();
   }, []);
   
-  // Update upcomingPayments whenever payments change
-  useEffect(() => {
-    setUpcomingPayments(getUpcomingPayments());
-  }, [payments]);
-  
   const handleSavePayment = async (newPayment) => {
     try {
-      console.log("Yeni ödeme kaydetme başlatıldı:", newPayment);
       const response = await PaymentService.addPayment(newPayment);
-      console.log("API yanıtı:", response);
       
       // API'den dönen veriyi ekle
-      if (response && response.status === 'success' && response.data && response.data.payment) {
-        const updatedPayments = [response.data.payment, ...payments];
-        setPayments(updatedPayments);
-        applyFilters(updatedPayments, filterCategory, searchQuery);
-        console.log("Ödeme başarıyla eklendi");
-      } else {
-        console.error("API yanıtı beklenen formatta değil:", response);
-        // Yine de UI'ı güncelleyelim
-        const generatedId = Date.now(); // Geçici bir ID oluştur
-        const paymentWithId = { ...newPayment, id: generatedId };
-        const updatedPayments = [paymentWithId, ...payments];
-        setPayments(updatedPayments);
-        applyFilters(updatedPayments, filterCategory, searchQuery);
-      }
+      const updatedPayments = [response.payment, ...payments];
+      setPayments(updatedPayments);
+      applyFilters(updatedPayments, filterCategory, searchQuery);
+      
     } catch (error) {
       console.error('Ödeme ekleme hatası:', error);
       // Hata durumunda da UI güncellemesi yap
-      const generatedId = Date.now(); // Geçici bir ID oluştur
-      const paymentWithId = { ...newPayment, id: generatedId };
-      const updatedPayments = [paymentWithId, ...payments];
+      const updatedPayments = [newPayment, ...payments];
       setPayments(updatedPayments);
       applyFilters(updatedPayments, filterCategory, searchQuery);
     }
@@ -204,7 +134,6 @@ const WealthGuardPayments = () => {
     if (!payment) return;
     
     try {
-      console.log(`Ödeme durumu güncelleniyor: ID=${paymentId}, yeni durum=${!payment.paid}`);
       // Durumu ters çevir
       await PaymentService.updatePaymentStatus(paymentId, !payment.paid);
       
@@ -214,34 +143,21 @@ const WealthGuardPayments = () => {
       );
       setPayments(updatedPayments);
       applyFilters(updatedPayments, filterCategory, searchQuery);
-      console.log("Ödeme durumu başarıyla güncellendi");
     } catch (error) {
       console.error('Ödeme durumu güncelleme hatası:', error);
-      // Hata olsa bile UI'ı güncelleyelim
-      const updatedPayments = payments.map(payment => 
-        payment.id === paymentId ? {...payment, paid: !payment.paid} : payment
-      );
-      setPayments(updatedPayments);
-      applyFilters(updatedPayments, filterCategory, searchQuery);
     }
   };
   
   const handleDeletePayment = async (paymentId) => {
     try {
-      console.log(`Ödeme siliniyor: ID=${paymentId}`);
       await PaymentService.deletePayment(paymentId);
       
       // UI güncellemesi
       const updatedPayments = payments.filter(payment => payment.id !== paymentId);
       setPayments(updatedPayments);
       applyFilters(updatedPayments, filterCategory, searchQuery);
-      console.log("Ödeme başarıyla silindi");
     } catch (error) {
       console.error('Ödeme silme hatası:', error);
-      // Hata olsa bile UI'ı güncelleyelim
-      const updatedPayments = payments.filter(payment => payment.id !== paymentId);
-      setPayments(updatedPayments);
-      applyFilters(updatedPayments, filterCategory, searchQuery);
     }
   };
 
@@ -321,6 +237,30 @@ const WealthGuardPayments = () => {
   const handleAddPayment = () => {
     setIsAddModalOpen(true);
   };
+  
+
+  //upcoming payments
+  const getUpcomingPayments = () => {
+    const today = new Date().getDate();
+    return payments.filter(payment => {
+      if (payment.paid) return false;
+      
+      let dueDay = payment.dueDate;
+      let daysUntilDue = dueDay - today;
+      
+      if (daysUntilDue < 0) {
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        daysUntilDue = lastDayOfMonth - today + dueDay;
+      }
+      
+      return daysUntilDue <= 7 && daysUntilDue >= 0;
+    });
+  };
+
+  const upcomingPayments = getUpcomingPayments();
+  const totalMonthlyPayment = payments.reduce((sum, payment) => sum + payment.amount, 0);
+  const paidAmount = payments.filter(p => p.paid).reduce((sum, payment) => sum + payment.amount, 0);
+  const unpaidAmount = totalMonthlyPayment - paidAmount;
 
   const categories = ["All", ...new Set(payments.map(payment => payment.category))];
 
@@ -598,15 +538,12 @@ const WealthGuardPayments = () => {
                         </div>
                         <div>
                           <div className={`font-medium ${textMainClass}`}>{payment.name}</div>
-                          <div className={`text-sm ${textSecondaryClass}`}>{payment.category}</div>
                         </div>
                       </div>
                       
                       <div className="flex items-center">
                         <div className={`font-medium ${textMainClass} mr-4`}>
-                          ${typeof payment.amount === 'number' 
-                            ? payment.amount.toFixed(2) 
-                            : Number(payment.amount).toFixed(2)}
+                          ${payment.amount.toFixed(2)}
                         </div>
                         
                         <div className="flex space-x-2">

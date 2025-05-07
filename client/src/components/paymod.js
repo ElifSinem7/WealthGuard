@@ -1,3 +1,4 @@
+import PaymentService from '../services/payment.service';
 import React, { useState } from "react";
 import { FaTimes, FaCalendarAlt, FaDollarSign, FaTag } from "react-icons/fa";
 import { useThemeLanguage } from "./ThemeLanguageContext";
@@ -69,7 +70,7 @@ const PaMod = ({ isOpen, onClose, onSave }) => {
     "text-base";
 
   if (!isOpen) return null;
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Tüm gerekli alanların doldurulduğunu kontrol et

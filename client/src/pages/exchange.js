@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { FaHome, FaChevronDown, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, 
-  FaSignOutAlt, FaBell, FaSync } from 'react-icons/fa';
+  FaSignOutAlt, FaSync } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'; 
 import { useThemeLanguage } from "./ThemeLanguageContext";
+import { useUser } from '../contexts/UserContext';
 
 const WealthGuardExchange = () => {
-  
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Exchange");
-  
-  const [username] = useState("examp name");
-  const [nickname] = useState("examp nickname");
-  
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("EUR");
   const [amount, setAmount] = useState("");
@@ -22,9 +18,22 @@ const WealthGuardExchange = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+   const { user } = useUser() || {};
+    const [userData, setUserData] = useState({
+        username: "Guest User", 
+        nickname: "Guest"});
   
+    useEffect(() => {
+      if (user) {
+        setUserData({
+          username: user.name || "Guest User",
+          nickname: user.nickname || "Guest"
+        });
+      }
+    }, [user]);
+
   // Get theme context
-  const { theme, colorTheme, fontSize, fontSizes } = useThemeLanguage();
+  const { theme, colorTheme, fontSize, } = useThemeLanguage();
   
   // Add the missing getThemeClass function
   const getThemeClass = (purpleClass, blueClass) => {
@@ -38,6 +47,7 @@ const WealthGuardExchange = () => {
     { code: "JPY", name: "Japanese Yen", symbol: "¥", flag: "🇯🇵" },
     { code: "CAD", name: "Canadian Dollar", symbol: "C$", flag: "🇨🇦" },
     { code: "AUD", name: "Australian Dollar", symbol: "A$", flag: "🇦🇺" },
+    { code: "TRY", name: "Turkish Lira", symbol: "₺", flag: "TR" },
   ];
   
   // Fetch exchange rates function
@@ -225,8 +235,8 @@ const WealthGuardExchange = () => {
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center">
                   <div>
-                    <h2 className={`font-medium ${textMainClass}`}>{username}</h2>
-                    <span className={`text-sm ${textSecondaryClass}`}>{nickname}</span>
+                    <h2 className={`font-medium ${textMainClass}`}>{userData.username}</h2>
+                    <span className={`text-sm ${textSecondaryClass}`}>{userData.nickname}</span>
                   </div>
                 </div>
                 <div className="flex items-center">

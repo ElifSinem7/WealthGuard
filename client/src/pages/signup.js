@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import axios from "axios";
 import { useThemeLanguage } from "./ThemeLanguageContext";
+import AuthService from "../services/auth.service";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +12,7 @@ export default function SignUp() {
     password: "",
   });
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { theme } = useThemeLanguage();
 
@@ -20,24 +21,43 @@ export default function SignUp() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Form gönderme işlemi
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    setLoading(true);
+    setError("");
+    
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signup", {
+      // Form verilerini kontrol et
+      if (!formData.fullName || !formData.email || !formData.password) {
+        setError('Lütfen tüm alanları doldurun.');
+        setLoading(false);
+        return;
+      }
+      
+      // E-posta formatını kontrol et
+      if (!formData.email.includes('@')) {
+        setError('Lütfen geçerli bir e-posta adresi girin.');
+        setLoading(false);
+        return;
+      }
+      
+      // AuthService kullanarak kayıt ol
+      await AuthService.register({
         name: formData.fullName,
         email: formData.email,
-        password: formData.password,
+        password: formData.password
       });
-
-      if (response.status === 201) {
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        navigate("/signin");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "An error occurred. Please try again.");
+      
+      // Başarılı kayıt sonrası giriş yap
+      await AuthService.login(formData.email, formData.password);
+      
+      // Yönlendir
+      navigate('/maindashboard');
+    } catch (error) {
+      console.error('Kayıt hatası:', error);
+      setError(error.message || 'Kayıt işlemi başarısız. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,6 +124,9 @@ export default function SignUp() {
           <p className="text-sm text-center" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
             Welcome! Please fill in the details to get started.
           </p>
+
+          {/* error message */}
+          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
 
           {/* form */}
           <form onSubmit={handleSubmit} className="space-y-3 mt-4">
@@ -182,16 +205,14 @@ export default function SignUp() {
               type="submit" 
               className="w-full py-2 rounded-lg mt-4"
               style={{ 
-                backgroundColor: theme === "dark" ? "#555" : "rgb(156, 163, 175)",
+                backgroundColor: loading ? (theme === "dark" ? "#444" : "rgb(209, 213, 219)") : (theme === "dark" ? "#555" : "rgb(156, 163, 175)"),
                 color: theme === "dark" ? "white" : "black"
               }}
+              disabled={loading}
             >
-              Sign Up
+              {loading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
-
-          {/* error message */}
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           {/* bottom */}
           <div className="mt-4 text-center text-sm">

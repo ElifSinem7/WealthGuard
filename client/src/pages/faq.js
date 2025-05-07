@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   FaHome,
   FaChevronDown,
@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useThemeLanguage } from "./ThemeLanguageContext";
+import { useUser } from '../contexts/UserContext';
 
 const SupportPage = () => {
   const navigate = useNavigate();
@@ -19,8 +20,21 @@ const SupportPage = () => {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const username = "examp name";
-  const nickname = "examp nickname";
+  const { user } = useUser() || {};
+  const [userData, setUserData] = useState({
+      username: "Guest User", 
+      nickname: "Guest"
+    });
+
+
+    useEffect(() => {
+      if (user) {
+        setUserData({
+          username: user.name || "Guest User",
+          nickname: user.nickname || "Guest"
+        });
+      }
+    }, [user]);
   
   // Get theme context
   const { theme, colorTheme } = useThemeLanguage();
@@ -168,8 +182,8 @@ const SupportPage = () => {
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center">
                 <div>
-                  <h2 className={`font-medium ${textMainClass}`}>{username}</h2>
-                  <span className={`text-sm ${textSecondaryClass}`}>{nickname}</span>
+                  <h2 className={`font-medium ${textMainClass}`}>{userData.username}</h2>
+                  <span className={`text-sm ${textSecondaryClass}`}>{userData.nickname}</span>
                 </div>
               </div>
               <div className="flex items-center">             

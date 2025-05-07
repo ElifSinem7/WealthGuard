@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaHome, FaClock, FaCreditCard, FaExchangeAlt, FaCog, FaQuestionCircle, 
-  FaSignOutAlt, FaUser, FaBrush} from 'react-icons/fa';
+  FaSignOutAlt, FaUser, FaBrush } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import { useThemeLanguage } from "./ThemeLanguageContext";
+import { useUser } from "../contexts/UserContext";
+import SettingService from "../services/setting.service";
+import AuthService from '../services/auth.service';
 
 const WealthGuardSettings = () => {
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState("Settings");
-  const [username, setUsername] = useState("examp name");
-  const [nickname, setNickname] = useState("examp nickname");
-  const [email, setEmail] = useState("example@email.com");
   const [activeTab, setActiveTab] = useState("profile");
+  
+  // Get user context
+  const { user, setUser, logout } = useUser();
   
   // Get theme context
   const { 
@@ -19,7 +22,88 @@ const WealthGuardSettings = () => {
     setColorTheme, 
     fontSize, 
     setFontSize,
+    setTheme  
   } = useThemeLanguage();
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    username: "",
+    nickname: "",
+    email: ""
+  });
+  
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.name || "",
+        nickname: user.nickname || "",
+        email: user.email || ""
+      });
+    }
+  }, [user]);
+  
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await SettingService.getSettings();
+        
+        if (settings.theme) {
+          setTheme(settings.theme);
+        }
+        
+        if (settings.color_theme) {
+          setColorTheme(settings.color_theme);
+        }
+        
+        if (settings.font_size) {
+          setFontSize(settings.font_size);
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      }
+    };
+    
+    fetchSettings();
+  }, [setTheme, setColorTheme, setFontSize]);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle color theme change
+  const handleColorThemeChange = async (newColorTheme) => {
+    try {
+      // Update UI first
+      setColorTheme(newColorTheme);
+      
+      // Save to backend
+      await SettingService.updateSettings({ color_theme: newColorTheme });
+    } catch (error) {
+      console.error('Error updating color theme:', error);
+    }
+  };
+  
+  // Handle font size change
+  const handleFontSizeChange = async (event) => {
+    const sliderValue = event.target.value;
+    const newFontSize = sliderValueToFontSize(sliderValue);
+    
+    try {
+      // Update UI first
+      setFontSize(newFontSize);
+      
+      // Save to backend
+      await SettingService.updateSettings({ font_size: newFontSize });
+    } catch (error) {
+      console.error('Error updating font size:', error);
+    }
+  };
 
   // Theme options
   const themes = [
@@ -32,6 +116,7 @@ const WealthGuardSettings = () => {
     if (value === "1") return "small";
     if (value === "2") return "medium";
     if (value === "3") return "large";
+    return "medium";
   };
   
   // Convert font size name to slider value
@@ -39,48 +124,92 @@ const WealthGuardSettings = () => {
     if (size === "small") return "1";
     if (size === "medium") return "2";
     if (size === "large") return "3";
+    return "2";
   };
 
-  // Method to get the appropriate color class based on current theme
+  // Get theme class based on selected color theme
   const getThemeClass = (purpleClass, blueClass) => {
     return colorTheme === 'blue' ? blueClass : purpleClass;
   };
 
+  // Navigation click handler
   const handleNavClick = (pageName) => {
     setActivePage(pageName);
-    console.log(`Navigating to ${pageName}`);
     if (pageName !== "Settings") {
       navigate(`/${pageName.toLowerCase()}`);
     }
   };
 
+  // Tab click handler
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  const handleColorThemeChange = (newColorTheme) => {
-    setColorTheme(newColorTheme);
-  };
-  
-  const handleFontSizeChange = (event) => {
-    const sliderValue = event.target.value;
-    const newFontSize = sliderValueToFontSize(sliderValue);
-    setFontSize(newFontSize);
-  };
-
+  // Logout handler
   const handleLogout = () => {
+    logout(); // Use the logout function from the user context
     navigate('/');
   };
 
-  const handleSaveProfile = () => {
-    console.log("Saving profile...");
-    alert("Profile information saved successfully!");
-  };
+// Handle reset password
+const handleResetPassword = async () => {
+  try {
+    // E-posta adresi doğrulaması
+    if (!formData.email || !formData.email.includes('@')) {
+      alert("Lütfen geçerli bir e-posta adresi giriniz.");
+      return;
+    }
+    
+    await SettingService.resetPassword({ email: formData.email });
+    alert("Şifre sıfırlama e-postası başarıyla gönderildi!");
+  } catch (error) {
+    console.error("Şifre sıfırlama hatası:", error);
+    
+    // Token hatası kontrolü
+    if (error.response && error.response.status === 401) {
+      alert("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+      logout(); // Context'ten gelen logout fonksiyonu
+      navigate('/');
+      return;
+    }
+    
+    alert("Şifre sıfırlama e-postası gönderilirken bir hata oluştu. Lütfen tekrar deneyin.");
+  }
+};
 
-  const handleResetPassword = () => {
-    console.log("Reset password...");
-    alert("Password reset email sent!");
-  };
+const handleSaveProfile = async () => {
+  try {
+    // İsim boş olmamalı kontrolü
+    if (!formData.username.trim()) {
+      alert("İsim alanı boş olamaz.");
+      return;
+    }
+    
+    const updatedUser = await SettingService.updateProfile({
+      name: formData.username,
+      nickname: formData.nickname,
+      email: formData.email
+    });
+    
+    // Kullanıcı context'ini güncelle
+    if (updatedUser) {
+      setUser(updatedUser);
+      alert("Profil bilgileri başarıyla kaydedildi!");
+    }
+  } catch (error) {
+    console.error("Profil kaydetme hatası:", error);
+    
+    // Token hatası kontrolü
+    if (error.response && error.response.status === 401) {
+      alert("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+      AuthService.logout(); // AuthService'den logout fonksiyonunu çağır
+      navigate('/');
+      return;
+    }
+    
+    alert("Profil bilgileri kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.");
+  }
+};
 
   // Dynamic classes based on theme
   const bgMainClass = theme === "dark" ? "bg-gray-900" : "bg-purple-50";
@@ -97,7 +226,7 @@ const WealthGuardSettings = () => {
       <div className="flex-1 flex justify-center items-center">
         <div className={`mx-auto h-[calc(100vh-100px)] flex ${bgCardClass} rounded-3xl shadow-lg overflow-hidden w-full max-w-10xl`}>
 
-          {/*sidebar*/}
+          {/* Sidebar */}
           <div className={`w-64 border-r ${borderClass} flex flex-col justify-between`}>
             <div>
               <div className={`p-6 border-b ${borderClass}`}>
@@ -109,32 +238,32 @@ const WealthGuardSettings = () => {
                 </div>
               </div>
 
-              {/*navigation menu*/}
+              {/* Main navigation */}
               <div className={`p-6 border-b ${borderClass}`}>
                 <h3 className={`text-xs uppercase ${textSecondaryClass} mb-2`}>MAIN</h3>
                 <a href="maindashboard"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Dashboard" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Dashboard")}
                 >
                   <FaHome className="mr-3" />
                   <span className="font-medium">Dashboard</span>
                 </a>
-                <a href="recurringTransactionPage"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                <a href="recurringtransactionpage"
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Transactions" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Transactions")}
                 >
                   <FaClock className="mr-3" />
                   <span>Transactions</span>
                 </a>
                 <a href="payments"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Payments" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Payments")}
                 >
                   <FaCreditCard className="mr-3" />
                   <span>Payments</span>
                 </a>
                 <a href="exchange"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "Exchange" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Exchange")}
                 >
                   <FaExchangeAlt className="mr-3" />
@@ -142,17 +271,18 @@ const WealthGuardSettings = () => {
                 </a>
               </div>
 
+              {/* Other navigation */}
               <div className="p-6">
                 <h3 className={`text-xs uppercase ${textSecondaryClass} mb-4`}>OTHERS</h3>
                 <a href="settings"
-                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  className={`flex items-center p-3 rounded-lg mb-2 cursor-pointer ${activePage === "Settings" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("Settings")}
                 >
                   <FaCog className="mr-3" />
                   <span>Settings</span>
                 </a>
                 <a href="faq"
-                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "faq" ? `${getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600')}` : `${textSecondaryClass} ${hoverBgClass}`}`}
+                  className={`flex items-center p-3 rounded-lg cursor-pointer ${activePage === "faq" ? getThemeClass('bg-purple-100 text-purple-600', 'bg-blue-100 text-blue-600') : `${textSecondaryClass} ${hoverBgClass}`}`}
                   onClick={() => handleNavClick("faq")}
                 >
                   <FaQuestionCircle className="mr-3" />
@@ -161,7 +291,7 @@ const WealthGuardSettings = () => {
               </div>
             </div>
 
-            {/*logout*/}
+            {/* Logout button */}
             <div className={`p-6 border-t ${borderClass} mt-auto`}>
               <button
                 onClick={handleLogout}
@@ -173,50 +303,49 @@ const WealthGuardSettings = () => {
             </div>
           </div>
 
-          {/* main content*/}
+          {/* Main content */}
           <div className="flex-1 p-6 overflow-y-auto">
-            {/* header*/}
+            {/* Header */}
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center">
                 <div>
-                  <h2 className={`font-medium ${textMainClass}`}>{username}</h2>
-                  <span className={`text-sm ${textSecondaryClass}`}>{nickname}</span>
+                  <h2 className={`font-medium ${textMainClass}`}>{user ? user.name : "Guest"}</h2>
+                  <span className={`text-sm ${textSecondaryClass}`}>{user ? user.nickname : "User"}</span>
                 </div>
-              </div>
-              <div className="flex items-center">
               </div>
             </div>
 
-            {/* settings panel*/}
+            {/* Settings panel */}
             <div className={`p-6 ${bgCardClass} border ${borderClass} rounded-lg shadow-sm mb-6`}>
               <h2 className={`text-xl font-bold ${textMainClass} mb-6`}>Settings</h2>
               
-              {/* tabs for settings*/}
+              {/* Tabs for settings */}
               <div className={`flex border-b ${borderClass} mb-6`}>
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'profile' ? `${getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600')}` : `${textSecondaryClass} hover:${textMainClass}`}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'profile' ? getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600') : `${textSecondaryClass} hover:${textMainClass}`}`}
                   onClick={() => handleTabClick('profile')}
                 >
                   <FaUser className="inline mr-2" /> Profile
                 </button>             
                 <button 
-                  className={`px-4 py-2 font-medium ${activeTab === 'appearance' ? `${getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600')}` : `${textSecondaryClass} hover:${textMainClass}`}`}
+                  className={`px-4 py-2 font-medium ${activeTab === 'appearance' ? getThemeClass('text-purple-600 border-b-2 border-purple-600', 'text-blue-600 border-b-2 border-blue-600') : `${textSecondaryClass} hover:${textMainClass}`}`}
                   onClick={() => handleTabClick('appearance')}
                 >
                   <FaBrush className="inline mr-2" /> Appearance
                 </button>             
               </div>
 
-              {/* profile settings*/}
+              {/* Profile settings */}
               {activeTab === 'profile' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className={`block text-sm font-medium ${textMainClass} mb-1`}>Full Name</label>
                       <input 
                         type="text" 
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        name="username"
+                        value={formData.username}
+                        onChange={handleInputChange}
                         className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md`}
                       />
                     </div>
@@ -224,8 +353,9 @@ const WealthGuardSettings = () => {
                       <label className={`block text-sm font-medium ${textMainClass} mb-1`}>Display Name</label>
                       <input 
                         type="text" 
-                        value={nickname}
-                        onChange={(e) => setNickname(e.target.value)}
+                        name="nickname"
+                        value={formData.nickname}
+                        onChange={handleInputChange}
                         className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md`}
                       />
                     </div>
@@ -233,23 +363,20 @@ const WealthGuardSettings = () => {
                       <label className={`block text-sm font-medium ${textMainClass} mb-1`}>Email Address</label>
                       <input 
                         type="email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
                         className={`w-full p-2 border ${inputBorderClass} ${inputBgClass} ${textMainClass} rounded-md`}
                       />
                     </div>
                   </div>
-                  <div className="space-y-6">
-                  <div>
+                  <div className="pt-4">
                     <button 
                       onClick={handleResetPassword}
-                      className={`px-4 py-2 ${getThemeClass('bg-purple-400 hover:bg-purple-700', 'bg-blue-400 hover:bg-blue-700')} text-white rounded-md transition duration-300`}
+                      className={`px-4 py-2 ${getThemeClass('bg-purple-400 hover:bg-purple-500', 'bg-blue-400 hover:bg-blue-500')} text-white rounded-md transition duration-300 mr-4`}
                     >
                       Reset Password
                     </button>
-                  </div>
-                </div>              
-                  <div className="space-y-6">
                     <button 
                       onClick={handleSaveProfile}
                       className={`px-4 py-2 ${getThemeClass('bg-purple-600 hover:bg-purple-700', 'bg-blue-600 hover:bg-blue-700')} text-white rounded-md transition duration-300`}
@@ -260,7 +387,7 @@ const WealthGuardSettings = () => {
                 </div>
               )}
 
-              {/* appearance settings */}
+              {/* Appearance settings */}
               {activeTab === 'appearance' && (
                 <div className="space-y-8">
                   {/* Color Theme Selection */}
@@ -303,7 +430,7 @@ const WealthGuardSettings = () => {
                       <span className="text-lg ml-3">A</span>
                     </div>
                     <div className={`mt-2 text-sm ${textSecondaryClass}`}>
-                      Current text size: {fontSize.charAt(0).toUpperCase() + fontSize.slice(1)}
+                      Current text size: {fontSize ? fontSize.charAt(0).toUpperCase() + fontSize.slice(1) : 'Medium'}
                     </div>
                   </div>
                 </div>

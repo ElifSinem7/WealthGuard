@@ -1,4 +1,6 @@
+// src/pages/ThemeLanguageContext.js
 import React, { createContext, useContext, useState, useEffect } from "react";
+import SettingService from "../services/setting.service"; // Dosya yolunu düzelttim
 
 // Create context
 export const ThemeLanguageContext = createContext();
@@ -31,6 +33,43 @@ export const ThemeLanguageProvider = ({ children }) => {
     medium: "1rem",
     large: "1.5rem",
   };
+
+  // API'den kullanıcı ayarlarını yükle
+  useEffect(() => {
+    const loadUserSettings = async () => {
+      // Kullanıcı giriş yapmışsa
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const settings = await SettingService.getSettings();
+          
+          if (settings.theme) {
+            setTheme(settings.theme);
+            localStorage.setItem("wealthguard-theme-mode", settings.theme);
+          }
+          
+          if (settings.color_theme) {
+            setColorTheme(settings.color_theme);
+            localStorage.setItem("wealthguard-color-theme", settings.color_theme);
+          }
+          
+          if (settings.font_size) {
+            setFontSize(settings.font_size);
+            localStorage.setItem("wealthguard-font-size", settings.font_size);
+          }
+          
+          if (settings.language) {
+            setLanguage(settings.language);
+            localStorage.setItem("wealthguard-language", settings.language);
+          }
+        } catch (error) {
+          console.error("Kullanıcı ayarları yükleme hatası:", error);
+        }
+      }
+    };
+    
+    loadUserSettings();
+  }, []);
 
   // Apply theme effects globally
   useEffect(() => {
@@ -73,7 +112,7 @@ export const ThemeLanguageProvider = ({ children }) => {
     document.documentElement.style.setProperty("--font-size-base", fontSizes[fontSize]);
     
     console.log(`Theme updated: ${theme}, Color: ${colorTheme}, Font: ${fontSize}, Language: ${language}`);
-  }, [theme, colorTheme, fontSize, language]);
+  }, [theme, colorTheme, fontSize, language, fontSizes]);
 
   return (
     <ThemeLanguageContext.Provider

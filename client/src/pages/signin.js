@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
 import { useThemeLanguage } from "./ThemeLanguageContext";
+import AuthService from "../services/auth.service";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -13,34 +13,21 @@ export default function SignIn() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
+    
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-
-      if (response.data && response.data.user) {
-        // Kullanıcıyı localStorage'a kaydet
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        navigate("/maindashboard");
-      } else {
-        setError("Geçersiz giriş bilgileri");
-      }
+      console.log("Login attempt with:", email, password);
+      const response = await AuthService.login(email, password);
+      console.log("Login success:", response);
+      navigate('/maindashboard');
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response?.data?.message) {
-        setError(error.response.data.message); // Backend'den gelen mesajı göster
-      } else {
-        setError("Giriş yaparken bir hata oluştu. Lütfen tekrar deneyin.");
-      }
+      setError(error.message || 'Giriş işlemi başarısız.');
     } finally {
       setLoading(false);
     }
   };
-
+  
   // Apply theme-based styles
   const themeStyles = {
     backgroundColor: theme === "dark" ? "var(--bg-main)" : "white",
@@ -103,8 +90,8 @@ export default function SignIn() {
           <p className="text-sm text-center" style={{ color: theme === "dark" ? "var(--text-secondary)" : "rgb(75, 85, 99)" }}>
             Welcome back! Please sign in to continue.
           </p>
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          <form onSubmit={handleLogin} className="space-y-3">
+          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+          <form onSubmit={handleLogin} className="space-y-3 mt-4">
             <div>
               <label className="text-sm font-medium" style={{ color: theme === "dark" ? "var(--text-main)" : "inherit" }}>
                 E-mail address
